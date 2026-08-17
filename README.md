@@ -14,6 +14,16 @@ A lightweight EPUB e-book reader built with Flutter, supporting both Android and
 
 [CHANGELOG](./CHANGELOG.md)
 
+## ℹ️ About This Fork
+
+This is a **personal modified fork** of [Lumina](https://github.com/MilkFeng/lumina) (by [MilkFeng](https://github.com/MilkFeng), released under the [MIT License](./LICENSE)).
+
+Additional features on top of the original project:
+
+- **Series merging** - select multiple books and merge them into a series that occupies a single shelf slot, with a count badge and a switchable cover; tap to open the series sub-shelf
+- **Manual sorting** - long-press and drag to reorder books, series, and books inside a series (order is persisted)
+- **Recent-read tab ordering** - top category tabs are reordered by reading recency (most recently read on the left)
+
 ## 🚧 Early Development Stage
 
 Please note that this project is currently in Alpha. Breaking changes to the database schema may occur without migration scripts in early versions.
