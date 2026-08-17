@@ -4,6 +4,8 @@ import 'shelf_series.dart';
 /// A single slot on the bookshelf: either one standalone book or a whole
 /// series collapsed into one item.
 sealed class ShelfItem {
+  const ShelfItem();
+
   /// Stable key used for manual-order persistence (`b<bookId>` / `s<seriesId>`).
   String get orderKey;
 

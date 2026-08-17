@@ -11,7 +11,7 @@ import '../../application/bookshelf_notifier.dart';
 /// dragged item to that position immediately (and the grid animates the
 /// shift via implicit keyed updates). Auto-scrolls when the drag reaches the
 /// top/bottom edges of the grid viewport.
-class ReorderableShelfGrid<T> extends StatefulWidget {
+class ReorderableShelfGrid<T extends Object> extends StatefulWidget {
   final List<T> items;
 
   /// When false the cells render as a plain, non-draggable grid.
@@ -42,7 +42,8 @@ class ReorderableShelfGrid<T> extends StatefulWidget {
       _ReorderableShelfGridState<T>();
 }
 
-class _ReorderableShelfGridState<T> extends State<ReorderableShelfGrid<T>> {
+class _ReorderableShelfGridState<T extends Object>
+    extends State<ReorderableShelfGrid<T>> {
   /// Index of the item currently being dragged (null = not dragging).
   int? _dragIndex;
 
