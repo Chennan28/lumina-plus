@@ -1,0 +1,104 @@
+name: lumina
+description: "Lumina Reader - A lightweight, cross-platform EPUB reader built with Flutter, supporting iOS and Android systems."
+publish_to: 'none'
+homepage: https://github.com/MilkFeng/lumina
+license: MIT
+
+version: 0.2.4+1
+
+environment:
+  sdk: ^3.10.8
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Localization
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^17.1.0
+
+  # Database
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
+  path_provider: ^2.1.5
+  collection: ^1.19.1
+
+  # Storage
+  shared_preferences: ^2.5.4
+  flutter_secure_storage: ^10.0.0
+
+  # Functional Programming
+  fpdart: ^1.2.0
+
+  # EPUB Parsing
+  xml: ^6.6.1
+  archive: ^4.0.7
+  crypto: ^3.0.7
+  convert: ^3.1.2
+  
+  # Reader
+  flutter_inappwebview: ^6.1.5
+  flutter_widget_from_html_core: ^0.17.0
+  wakelock_plus: ^1.4.0
+
+  # File Picking & Permissions
+  path: ^1.9.1
+  
+  # App Info & URL Launcher
+  package_info_plus: ^9.0.0
+  url_launcher: ^6.3.2
+  flutter_svg: ^2.2.3
+
+  # Image Compression
+  flutter_image_compress: 2.4.0
+  saf_stream: ^0.12.3
+  saf_util: ^0.11.0
+  android_intent_plus: ^6.0.0
+  
+  # Speed Dial FAB
+  flutter_speed_dial: ^7.0.0
+
+  # File Sharing (iOS Share Sheet)
+  share_plus: ^12.0.1
+
+  # Rust FFI bridge
+  flutter_rust_bridge: 2.11.1
+  lumina_rust:
+    path: rust_builder
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  
+  # Code Generation
+  build_runner: ^2.4.13
+  riverpod_generator: ^2.4.0
+  isar_generator: ^3.1.0+1
+  
+  # Testing
+  path_provider_platform_interface: ^2.1.2
+  plugin_platform_interface: ^2.1.8
+  mockito: ^5.4.4
+
+  # Icon
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  assets:
+    - assets/icons/icon.svg
+    - assets/logos/logo.svg
+    - assets/licenses/rust_licenses.json

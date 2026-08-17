@@ -1,0 +1,270 @@
+name: Build And Release App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      build_ios:
+        description: 'Also build the iOS IPA (takes much longer)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    name: Prepare Version Info
+    runs-on: ubuntu-latest
+    outputs:
+      build_name: ${{ steps.version_info.outputs.build_name }}
+      build_number: ${{ steps.version_info.outputs.build_number }}
+    steps:
+      - name: Parse Version from Tag (or default when run manually)
+        id: version_info
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            TAG="$GITHUB_REF_NAME"
+            VERSION="${TAG#v}"
+          else
+            # Manual workflow_dispatch without a version tag: use the pubspec version.
+            VERSION="0.2.4"
+          fi
+
+          if [[ "$VERSION" == *-pre.* ]]; then
+            BASE_VER=$(echo $VERSION | cut -d'-' -f1)
+            PRE_NUM=$(echo $VERSION | rev | cut -d'.' -f1 | rev)
+          else
+            BASE_VER=$VERSION
+            PRE_NUM=999
+          fi
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VER"
+          V_CODE=$(( 10#${MAJOR:-0} * 100000000 + 10#${MINOR:-0} * 1000000 + 10#${PATCH:-0} * 10000 + 10#$PRE_NUM ))
+
+          echo "build_name=$BASE_VER" >> $GITHUB_OUTPUT
+          echo "build_number=$V_CODE" >> $GITHUB_OUTPUT
+
+  build-android:
+    name: Build Android APKs & AAB
+    runs-on: ubuntu-latest
+    needs: prepare
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android, armv7-linux-androideabi, x86_64-linux-android
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk
+
+      - name: Setup Signing (secrets or throwaway keystore)
+        run: |
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+            echo "storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}" > android/key.properties
+            echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+            echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+            echo "storeFile=upload-keystore.jks" >> android/key.properties
+            echo "USING_SECRETS=true" >> $GITHUB_ENV
+          else
+            # No signing secrets configured: generate a throwaway keystore so
+            # the APK is still signed (required for Android sideloading).
+            keytool -genkeypair -v -keystore android/app/upload-keystore.jks \
+              -storepass lumina-ci -keypass lumina-ci -alias upload \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Lumina CI, OU=CI, O=Lumina, L=Unknown, ST=Unknown, C=US"
+            echo "storePassword=lumina-ci" > android/key.properties
+            echo "keyPassword=lumina-ci" >> android/key.properties
+            echo "keyAlias=upload" >> android/key.properties
+            echo "storeFile=upload-keystore.jks" >> android/key.properties
+            echo "USING_SECRETS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Create Output Dir
+        run: mkdir -p build/outputs
+
+      - name: Build App Bundle (Store)
+        run: |
+          flutter build appbundle --release --dart-define=IS_STORE_VERSION=true \
+            --build-name=${{ needs.prepare.outputs.build_name }} \
+            --build-number=${{ needs.prepare.outputs.build_number }}
+          
+          NEW_NAME="lumina-${{ github.ref_name }}-bundle-release.aab"
+          
+          mv build/app/outputs/bundle/release/app-release.aab build/outputs/$NEW_NAME
+          echo "Generated $NEW_NAME"
+
+      - name: Build Universal APK
+        run: |
+          flutter build apk --release --dart-define=IS_STORE_VERSION=false \
+            --build-name=${{ needs.prepare.outputs.build_name }} \
+            --build-number=${{ needs.prepare.outputs.build_number }}
+          
+          NEW_NAME="lumina-${{ github.ref_name }}-universal-release.apk"
+          
+          mv build/app/outputs/flutter-apk/app-release.apk build/outputs/$NEW_NAME
+          echo "Generated $NEW_NAME"
+
+      - name: Build Split APKs
+        run: |
+          flutter build apk --release --split-per-abi --dart-define=IS_STORE_VERSION=false \
+            --build-name=${{ needs.prepare.outputs.build_name }} \
+            --build-number=${{ needs.prepare.outputs.build_number }}
+
+          cd build/app/outputs/flutter-apk/
+          for file in app-*-release.apk; do
+            abi=${file#app-}
+            abi=${abi%-release.apk}
+            
+            NEW_NAME="lumina-${{ github.ref_name }}-$abi-release.apk"
+            
+            mv "$file" "${{ github.workspace }}/build/outputs/$NEW_NAME"
+            echo "Generated $NEW_NAME"
+          done
+
+      - name: Upload Android Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts
+          path: build/outputs/*
+
+      - name: Upload Throwaway Keystore (only when no secrets configured)
+        if: env.USING_SECRETS == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-keystore
+          path: android/app/upload-keystore.jks
+
+  build-ios:
+    name: Build iOS IPA
+    runs-on: macos-latest
+    needs: prepare
+    timeout-minutes: 60
+    if: github.event_name == 'push' || github.event.inputs.build_ios == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios, x86_64-apple-ios, aarch64-apple-ios-sim
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Create Output Dir
+        run: mkdir -p build/outputs
+
+      - name: Build IPA (Unsigned, Store)
+        run: |
+          flutter build ios --release --no-codesign --dart-define=IS_STORE_VERSION=true \
+            --build-name=${{ needs.prepare.outputs.build_name }} \
+            --build-number=${{ needs.prepare.outputs.build_number }}
+
+          mkdir -p Payload
+          mv build/ios/iphoneos/Runner.app Payload/
+          NAME_STORE="lumina-${{ github.ref_name }}-ios-store-unsigned.ipa"
+
+          zip -q -r build/outputs/$NAME_STORE Payload
+          echo "Generated $NAME_STORE"
+
+          rm -rf Payload
+
+      - name: Build IPA (Unsigned)
+        run: |
+          flutter build ios --release --no-codesign --dart-define=IS_STORE_VERSION=false \
+            --build-name=${{ needs.prepare.outputs.build_name }} \
+            --build-number=${{ needs.prepare.outputs.build_number }}
+
+          mkdir -p Payload
+          mv build/ios/iphoneos/Runner.app Payload/
+          NAME_SIDELOAD="lumina-${{ github.ref_name }}-ios-sideload-unsigned.ipa"
+
+          zip -q -r build/outputs/$NAME_SIDELOAD Payload
+          echo "Generated $NAME_SIDELOAD"
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-artifacts
+          path: build/outputs/*.ipa
+
+  create-release:
+    name: Create GitHub Release
+    needs: [build-ios, build-android]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download iOS Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-artifacts
+          path: artifacts
+        continue-on-error: true
+
+      - name: Download Android Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifacts
+          path: artifacts
+
+      - name: Extract Release Notes
+        id: extract_notes
+        uses: ffurrer2/extract-release-notes@v3
+        with:
+          prerelease: ${{ contains(github.ref_name, 'pre') }}
+
+      - name: Release to GitHub
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            artifacts/**/*.apk
+            artifacts/**/*.aab
+            artifacts/**/*.ipa
+          body: ${{ steps.extract_notes.outputs.release_notes }}
+          generate_release_notes: false
+          prerelease: ${{ contains(github.ref_name, 'pre') }}

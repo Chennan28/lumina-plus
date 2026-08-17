@@ -1,0 +1,467 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:lumina/src/core/theme/app_theme.dart';
+import '../application/bookshelf_notifier.dart';
+import '../data/shelf_book_repository.dart';
+import '../domain/shelf_item.dart';
+import 'mixins/library_actions_mixin.dart';
+import 'widgets/book_grid_item.dart';
+import 'widgets/library_app_bar.dart';
+import 'widgets/library_selection_bar.dart';
+import 'widgets/reorderable_shelf_grid.dart';
+import 'widgets/series_grid_item.dart';
+import 'widgets/style_bottom_sheet.dart';
+import '../../../../l10n/app_localizations.dart';
+
+/// Library Screen - Displays user's book collection with advanced bookshelf features
+class LibraryScreen extends ConsumerStatefulWidget {
+  const LibraryScreen({super.key});
+
+  @override
+  ConsumerState<LibraryScreen> createState() => _LibraryScreenState();
+}
+
+class _LibraryScreenState extends ConsumerState<LibraryScreen>
+    with TickerProviderStateMixin, LibraryActionsMixin {
+  TabController? _tabController;
+  bool _isUpdatingFromState = false;
+  int _lastTabIndex = 0;
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
+  }
+
+  void _initializeTabController(BookshelfState state) {
+    final tabCount =
+        2 + state.availableGroups.length; // All + Uncategorized + groups
+
+    if (_tabController == null || _tabController!.length != tabCount) {
+      final previousController = _tabController;
+      previousController?.removeListener(_handleTabChange);
+      _tabController = TabController(
+        length: tabCount,
+        vsync: this,
+        initialIndex: _getTabIndexFromState(state),
+      );
+      _lastTabIndex = _tabController!.index;
+      _tabController!.addListener(_handleTabChange);
+      if (previousController != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          previousController.dispose();
+        });
+      }
+    }
+  }
+
+  int _getTabIndexFromState(BookshelfState state) {
+    if (state.filterGroupId == -1) return 1;
+    if (state.filterGroupId == null) return 0;
+    final index = state.availableGroups.indexWhere(
+      (g) => g.id == state.filterGroupId,
+    );
+    return index == -1 ? 0 : index + 2;
+  }
+
+  void _handleTabChange() {
+    if (_tabController == null || _isUpdatingFromState) return;
+    final newIndex = _tabController!.index;
+    if (newIndex == _lastTabIndex) return;
+    _lastTabIndex = newIndex;
+
+    final state = ref.read(bookshelfNotifierProvider).valueOrNull;
+    if (state == null) return;
+
+    if (newIndex == 0) {
+      ref.read(bookshelfNotifierProvider.notifier).filterByGroup(null);
+      return;
+    }
+
+    if (newIndex == 1) {
+      ref.read(bookshelfNotifierProvider.notifier).filterByGroup(-1);
+      return;
+    }
+
+    final newGroupId = state.availableGroups[newIndex - 2].id;
+    if (state.filterGroupId != newGroupId) {
+      ref.read(bookshelfNotifierProvider.notifier).filterByGroup(newGroupId);
+    }
+  }
+
+  void _syncTabIndexWithState(BookshelfState state) {
+    if (_tabController == null) return;
+
+    final expectedIndex = _getTabIndexFromState(state);
+    if (_tabController!.index != expectedIndex) {
+      _isUpdatingFromState = true;
+      _lastTabIndex = expectedIndex;
+      _tabController!.animateTo(expectedIndex);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _isUpdatingFromState = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final route = ModalRoute.of(context);
+    final secondaryAnimation =
+        route?.secondaryAnimation ?? const AlwaysStoppedAnimation(0.0);
+
+    // AbsorbPointer to prevent interactions during transition
+    return AnimatedBuilder(
+      animation: secondaryAnimation,
+      builder: (context, child) {
+        final isTransitioning =
+            secondaryAnimation.value > 0.0 && secondaryAnimation.value < 1.0;
+
+        return AbsorbPointer(absorbing: isTransitioning, child: child);
+      },
+      child: _buildContentWidget(context),
+    );
+  }
+
+  Widget _buildContentWidget(BuildContext context) {
+    final bookshelfState = ref.watch(bookshelfNotifierProvider);
+
+    final state = ref.watch(bookshelfNotifierProvider).valueOrNull;
+    final isSelectionMode = state?.isSelectionMode ?? false;
+
+    return PopScope(
+      canPop: !isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          return;
+        }
+
+        if (isSelectionMode) {
+          ref.read(bookshelfNotifierProvider.notifier).toggleSelectionMode();
+        }
+      },
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: bookshelfState.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              error: (error, stack) => Center(
+                child: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.errorLoadingLibrary(error.toString()),
+                ),
+              ),
+              data: (state) {
+                _initializeTabController(state);
+                _syncTabIndexWithState(state);
+                return _buildTabView(context, ref, state);
+              },
+            ),
+            floatingActionButton: _buildFAB(context, ref),
+          ),
+          if (isSelectingFiles)
+            Positioned.fill(
+              child: Container(
+                color: Theme.of(
+                  context,
+                ).colorScheme.scrim.withValues(alpha: 0.5),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget? _buildFAB(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(bookshelfNotifierProvider).valueOrNull;
+
+    if (state?.isSelectionMode ?? false) {
+      return null;
+    }
+
+    SpeedDialChild buildSpeedDialChild(
+      IconData icon,
+      String label,
+      VoidCallback onTap,
+    ) {
+      return SpeedDialChild(
+        child: Icon(icon),
+        label: label,
+        onTap: onTap,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        labelBackgroundColor: Theme.of(context).colorScheme.surface,
+        labelShadow: [],
+        labelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontWeight: FontWeight.w500,
+        ),
+        elevation: 2,
+      );
+    }
+
+    return SpeedDial(
+      icon: Icons.add_outlined,
+      activeIcon: Icons.close_outlined,
+      overlayColor: Theme.of(context).colorScheme.scrim,
+      overlayOpacity: 0.5,
+      spaceBetweenChildren: 12,
+      renderOverlay: true,
+      useRotationAnimation: true,
+      children: [
+        buildSpeedDialChild(
+          Icons.file_present_outlined,
+          AppLocalizations.of(context)!.importFiles,
+          () => _importFiles(context, ref),
+        ),
+        buildSpeedDialChild(
+          Icons.folder_open_outlined,
+          AppLocalizations.of(context)!.importFromFolder,
+          () => _scanFolder(context, ref),
+        ),
+        buildSpeedDialChild(
+          Icons.settings_backup_restore_outlined,
+          AppLocalizations.of(context)!.restoreFromBackup,
+          () => handleRestoreBackup(context, ref),
+        ),
+      ],
+    );
+  }
+
+  // Placeholder method for scanning folder
+  void _scanFolder(BuildContext context, WidgetRef ref) {
+    handleScanFolder(context, ref);
+  }
+
+  // Placeholder method for importing files
+  void _importFiles(BuildContext context, WidgetRef ref) {
+    handleImportFiles(context, ref);
+  }
+
+  Widget _buildTabView(
+    BuildContext context,
+    WidgetRef ref,
+    BookshelfState state,
+  ) {
+    if (_tabController == null) {
+      return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+    }
+
+    final bottomStatusBarHeight = MediaQuery.of(context).padding.bottom;
+
+    return Stack(
+      children: [
+        NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              LibraryAppBar(
+                state: state,
+                tabController: _tabController!,
+                onSortPressed: () => _showStyleBottomSheet(context, ref, state),
+                onSelectionToggle: () => ref
+                    .read(bookshelfNotifierProvider.notifier)
+                    .toggleSelectionMode(),
+                onSelectAll: () =>
+                    ref.read(bookshelfNotifierProvider.notifier).selectAll(),
+                onClearSelection: () => ref
+                    .read(bookshelfNotifierProvider.notifier)
+                    .clearSelection(),
+                onEditGroup: (group, l10n) =>
+                    showEditGroupDialog(context, ref, group, l10n),
+              ),
+            ];
+          },
+          body: TabBarView(
+            controller: _tabController,
+            physics: state.isSelectionMode
+                ? const NeverScrollableScrollPhysics()
+                : null,
+            children: _buildTabViewChildren(context, ref, state),
+          ),
+        ),
+        // Slide the selection bar up from below the screen when entering
+        // selection mode, and back down when leaving it.
+        AnimatedPositioned(
+          duration: const Duration(
+            milliseconds: AppTheme.defaultAnimationDurationMs,
+          ),
+          curve: Curves.easeInOut,
+          bottom: state.isSelectionMode
+              ? 0
+              : -(AppTheme.kBottomAppBarHeight + bottomStatusBarHeight),
+          left: 0,
+          right: 0,
+          child: LibrarySelectionBar(
+            state: state,
+            onMove: () => showMoveToGroup(context, ref, state),
+            onDelete: () => confirmDelete(context, ref),
+            onMerge: () => handleMergeSelection(context, ref),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildTabViewChildren(
+    BuildContext context,
+    WidgetRef ref,
+    BookshelfState state,
+  ) {
+    final tabs = <Widget>[];
+
+    // "All" tab
+    tabs.add(_buildTabContent(ref, state, null));
+    tabs.add(_buildTabContent(ref, state, -1));
+
+    // Group tabs
+    for (final group in state.availableGroups) {
+      tabs.add(_buildTabContent(ref, state, group.id));
+    }
+
+    return tabs;
+  }
+
+  Widget _buildTabContent(WidgetRef ref, BookshelfState state, int? groupId) {
+    final isActiveTab = state.filterGroupId == groupId;
+    final itemsForTab = isActiveTab ? state.items : state.cachedItems[groupId];
+    if (itemsForTab == null) {
+      return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+    }
+
+    final bottomStatusBarHeight = MediaQuery.of(context).padding.bottom;
+
+    // Use Builder to get the correct context inside NestedScrollView
+    return Builder(
+      builder: (BuildContext context) {
+        return CustomScrollView(
+          key: PageStorageKey<String>('tab_$groupId'),
+          slivers: [
+            SliverOverlapInjector(
+              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+            ),
+            _buildItemsGrid(context, ref, state, itemsForTab),
+            if (state.isSelectionMode)
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: AppTheme.kBottomAppBarHeight + bottomStatusBarHeight,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showStyleBottomSheet(
+    BuildContext context,
+    WidgetRef ref,
+    BookshelfState state,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SizedBox(
+        width: double.infinity,
+        child: StyleBottomSheet(
+          currentSort: state.sortBy,
+          onSortSelected: (sortBy) {
+            ref
+                .read(bookshelfNotifierProvider.notifier)
+                .changeSortOrder(sortBy);
+            Navigator.pop(context);
+          },
+          currentViewMode: state.viewMode,
+          onViewModeSelected: (mode) {
+            ref.read(bookshelfNotifierProvider.notifier).changeViewMode(mode);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      scrollControlDisabledMaxHeightRatio: 0.75,
+      constraints: const BoxConstraints(maxWidth: double.infinity),
+    );
+  }
+
+  Widget _buildItemsGrid(
+    BuildContext context,
+    WidgetRef ref,
+    BookshelfState state,
+    List<ShelfItem> items,
+  ) {
+    if (items.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Text(
+            AppLocalizations.of(context)!.noItemsInCategory,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final notifier = ref.read(bookshelfNotifierProvider.notifier);
+
+    // Long-press drag reordering is only available in manual (custom) sort
+    // mode, and is disabled while selecting items.
+    final dragEnabled = state.sortBy == ShelfBookSortBy.custom &&
+        !state.isSelectionMode;
+
+    return ReorderableShelfGrid<ShelfItem>(
+      items: items,
+      dragEnabled: dragEnabled,
+      viewMode: state.viewMode,
+      itemKey: (item) => ValueKey<String>(item.orderKey),
+      onReorder: (oldIndex, newIndex) =>
+          notifier.reorderItems(oldIndex, newIndex),
+      // While drag-reordering is active the long-press gesture belongs to
+      // the drag recognizer, so the long-press-to-select callbacks must be
+      // suppressed (otherwise they would win the gesture arena and dragging
+      // would never start).
+      itemBuilder: (context, item) => switch (item) {
+        BookShelfItem(:final book) => BookGridItem(
+          book: book,
+          isSelected: state.selectedBookIds.contains(book.id),
+          isSelectionMode: state.isSelectionMode,
+          viewMode: state.viewMode,
+          onLongPress: dragEnabled
+              ? null
+              : () {
+                  if (!state.isSelectionMode) {
+                    HapticFeedback.selectionClick();
+                    notifier.toggleSelectionMode();
+                    notifier.toggleItemSelection(book);
+                  }
+                },
+        ),
+        final SeriesShelfItem seriesItem => SeriesGridItem(
+          item: seriesItem,
+          isSelected: state.selectedSeriesIds.contains(seriesItem.identity),
+          isSelectionMode: state.isSelectionMode,
+          viewMode: state.viewMode,
+          onLongPress: dragEnabled
+              ? null
+              : () {
+                  if (!state.isSelectionMode) {
+                    HapticFeedback.selectionClick();
+                    notifier.toggleSelectionMode();
+                    notifier.toggleSeriesSelection(seriesItem.series);
+                  }
+                },
+        ),
+      },
+    );
+  }
+}

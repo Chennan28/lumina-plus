@@ -1,0 +1,104 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lumina/src/features/library/domain/shelf_book.dart';
+import 'package:lumina/src/global_share_handler.dart';
+import '../services/toast_service.dart';
+import '../../features/library/presentation/library_screen.dart';
+import '../../features/library/presentation/series_shelf_screen.dart';
+import '../../features/detail/presentation/book_detail_screen.dart';
+import '../../features/reader/presentation/reader_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
+
+/// App Router Configuration
+final appRouterProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    navigatorKey: ToastService.navigatorKey,
+    initialLocation: '/',
+    debugLogDiagnostics: true,
+    redirect: (context, state) {
+      final location = state.uri.toString();
+      if (location.startsWith('content://') || location.startsWith('file://')) {
+        Future.microtask(() {
+          ref.read(pendingRouteFileProvider.notifier).state = location;
+        });
+        return '/';
+      } else if (location.startsWith('/-')) {
+        return '/';
+      }
+      return null;
+    },
+    routes: [
+      // Library Screen (Home)
+      GoRoute(
+        path: '/',
+        name: 'library',
+        pageBuilder: (context, state) =>
+            NoTransitionPage(key: state.pageKey, child: const LibraryScreen()),
+      ),
+
+      // Series Shelf Screen (sub-shelf of a merged series)
+      GoRoute(
+        path: '/series/:id',
+        name: 'series-shelf',
+        pageBuilder: (context, state) {
+          final seriesId = int.tryParse(state.pathParameters['id'] ?? '');
+          if (seriesId == null) {
+            return MaterialPage(
+              key: state.pageKey,
+              child: Scaffold(
+                body: Center(child: Text('Invalid series: ${state.uri}')),
+              ),
+            );
+          }
+          return MaterialPage(
+            key: state.pageKey,
+            child: SeriesShelfScreen(seriesId: seriesId),
+          );
+        },
+      ),
+
+      // Book Detail Screen
+      GoRoute(
+        path: '/book/:id',
+        name: 'book-detail',
+        pageBuilder: (context, state) {
+          final fileHash = state.pathParameters['id']!;
+          final book =
+              state.extra as ShelfBook?; // Try to get the book from extra
+          return MaterialPage(
+            key: state.pageKey,
+            child: BookDetailScreen(bookId: fileHash, initialBook: book),
+          );
+        },
+      ),
+
+      // Reader Screen (Stream-from-Zip)
+      GoRoute(
+        path: '/read/:id',
+        name: 'reader',
+        pageBuilder: (context, state) {
+          final fileHash = state.pathParameters['id']!;
+          return MaterialPage(
+            key: state.pageKey,
+            child: ReaderScreen(fileHash: fileHash),
+          );
+        },
+      ),
+
+      // Settings Screen
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        pageBuilder: (context, state) {
+          return MaterialPage(
+            key: state.pageKey,
+            child: const SettingsScreen(),
+          );
+        },
+      ),
+    ],
+    errorBuilder: (context, state) =>
+        Scaffold(body: Center(child: Text('Route not found: ${state.uri}'))),
+  );
+});
