@@ -12,6 +12,7 @@ import '../../application/bookshelf_notifier.dart';
 import '../../application/library_notifier.dart';
 import '../../data/services/unified_import_service_provider.dart';
 import '../../domain/shelf_group.dart';
+import '../../domain/shelf_item.dart';
 import '../../domain/shelf_series.dart';
 import '../widgets/group_selection_dialog.dart';
 
