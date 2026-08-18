@@ -68,43 +68,18 @@ class _RecentReadsViewState extends ConsumerState<RecentReadsView> {
       );
     }
 
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final peekWidth = screenWidth / 6.0;
-    // 当前页右侧露出的“前一本（更早阅读）”封面
-    final nextBook = _current + 1 < books.length ? books[_current + 1] : null;
-
     return Column(
       children: [
         // ── 大封面轮播区 ───────────────────────────────────────────────
         Expanded(
-          child: Stack(
-            children: [
-              // 底层：右侧半透明叠加的上一本封面（露出约六分之一）
-              if (nextBook != null)
-                Positioned(
-                  right: 0,
-                  top: 32,
-                  bottom: 32,
-                  width: peekWidth,
-                  child: Opacity(
-                    opacity: 0.45,
-                    child: BookCover(
-                      relativePath: nextBook.coverPath,
-                      radius: BorderRadius.circular(6),
-                    ),
-                  ),
-                ),
-              // 上层：可滑动的单本封面
-              PageView.builder(
-                controller: _controller,
-                itemCount: books.length,
-                onPageChanged: (index) => setState(() => _current = index),
-                itemBuilder: (context, index) => _buildBookPage(
-                  context,
-                  books[index],
-                ),
-              ),
-            ],
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: books.length,
+            onPageChanged: (index) => setState(() => _current = index),
+            itemBuilder: (context, index) => _buildBookPage(
+              context,
+              books[index],
+            ),
           ),
         ),
 
@@ -196,11 +171,12 @@ class _RecentReadsViewState extends ConsumerState<RecentReadsView> {
         padding: const EdgeInsets.fromLTRB(28, 4, 28, 0),
         child: Column(
           children: [
-            // Cover: always fully visible (BoxFit.contain), centered in the
-            // available space, sharing the same Hero tag as the shelf grid so
-            // opening the book gets the smooth cover-flight transition.
+            // Cover: always fully visible (BoxFit.contain), anchored to the
+            // bottom so it sits right above the title below, sharing the same
+            // Hero tag as the shelf grid for the smooth cover-flight transition.
             Expanded(
-              child: Center(
+              child: Align(
+                alignment: Alignment.bottomCenter,
                 child: AspectRatio(
                   aspectRatio: 210 / 297,
                   child: Hero(

@@ -454,8 +454,17 @@ mixin LibraryActionsMixin<T extends ConsumerStatefulWidget>
       return;
     }
 
-    // Create a new series with the selected books.
-    final name = await promptForSeriesName(context);
+    // Create a new series with the selected books. Pre-fill the name with
+    // the title of the first selected book (in shelf display order).
+    String? initialName;
+    for (final item in state.items) {
+      if (item is BookShelfItem &&
+          state.selectedBookIds.contains(item.book.id)) {
+        initialName = item.book.title;
+        break;
+      }
+    }
+    final name = await promptForSeriesName(context, initialValue: initialName);
     if (!context.mounted || name == null) return;
 
     final success = await notifier.mergeSelectedIntoSeries(name: name);
@@ -467,13 +476,17 @@ mixin LibraryActionsMixin<T extends ConsumerStatefulWidget>
     }
   }
 
-  Future<String?> promptForSeriesName(BuildContext context) async {
-    var draftName = '';
+  Future<String?> promptForSeriesName(
+    BuildContext context, {
+    String? initialValue,
+  }) async {
+    var draftName = initialValue ?? '';
     final result = await showDialog<String?>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.newSeries),
         content: TextField(
+          controller: TextEditingController(text: initialValue ?? ''),
           autofocus: true,
           textInputAction: TextInputAction.done,
           decoration: InputDecoration(
