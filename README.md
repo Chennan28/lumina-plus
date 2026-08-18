@@ -28,15 +28,15 @@ A lightweight, cross-platform EPUB e-book reader built with Flutter, supporting 
 
 ### Download
 
-Grab the latest APK from the [Releases](https://github.com/Chennan28/lumina-plus/releases) page and install it directly on your Android device.
+Grab the latest APK from the [Releases](https://github.com/Chennan28/Ereader/releases) page and install it directly on your Android device.
 
 ### Build from Source
 
 Requirements: Flutter SDK ≥ 3.38, Dart SDK ≥ 3.10, Rust toolchain + cargo-ndk (for the EPUB parser), Android SDK 36 + NDK (for Android builds).
 
 ```bash
-git clone https://github.com/Chennan28/lumina-plus.git
-cd lumina-plus
+git clone https://github.com/Chennan28/Ereader.git
+cd Ereader
 
 flutter pub get
 

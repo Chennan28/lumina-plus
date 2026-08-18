@@ -28,15 +28,15 @@
 
 ### 下载安装
 
-前往 [Releases](https://github.com/Chennan28/lumina-plus/releases) 页面下载最新 APK，直接安装到 Android 手机即可。
+前往 [Releases](https://github.com/Chennan28/Ereader/releases) 页面下载最新 APK，直接安装到 Android 手机即可。
 
 ### 从源码构建
 
 环境要求：Flutter SDK ≥ 3.38、Dart SDK ≥ 3.10、Rust 工具链 + cargo-ndk（EPUB 解析引擎）、Android SDK 36 + NDK（构建安卓包时）。
 
 ```bash
-git clone https://github.com/Chennan28/lumina-plus.git
-cd lumina-plus
+git clone https://github.com/Chennan28/Ereader.git
+cd Ereader
 
 flutter pub get
 

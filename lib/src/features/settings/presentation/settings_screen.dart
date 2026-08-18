@@ -118,9 +118,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     SettingsInfoTile(
                       icon: Icons.code_outlined,
                       title: l10n.github,
-                      subtitle: 'github.com/Chennan28/lumina-plus.git',
+                      subtitle: 'github.com/Chennan28/Ereader.git',
                       onTap: () =>
-                          _launchUrl('https://github.com/Chennan28/lumina-plus.git'),
+                          _launchUrl('https://github.com/Chennan28/Ereader.git'),
                     ),
                     SettingsInfoTile(
                       icon: Icons.person_outline_outlined,
