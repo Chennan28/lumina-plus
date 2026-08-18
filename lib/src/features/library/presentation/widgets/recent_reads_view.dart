@@ -190,27 +190,31 @@ class _RecentReadsViewState extends ConsumerState<RecentReadsView> {
   }
 
   Widget _buildBookPage(BuildContext context, ShelfBook book) {
-    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => _openBook(book),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(28, 16, 28, 8),
+        padding: const EdgeInsets.fromLTRB(28, 4, 28, 0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Cover: always fully visible (BoxFit.contain), centered in the
+            // available space, sharing the same Hero tag as the shelf grid so
+            // opening the book gets the smooth cover-flight transition.
             Expanded(
-              child: AspectRatio(
-                aspectRatio: 210 / 297,
-                child: Hero(
-                  tag: 'recent-cover-${book.id}',
-                  child: BookCover(
-                    relativePath: book.coverPath,
-                    radius: BorderRadius.circular(10),
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 210 / 297,
+                  child: Hero(
+                    tag: 'book-cover-${book.id}',
+                    child: BookCover(
+                      relativePath: book.coverPath,
+                      radius: BorderRadius.circular(10),
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             Text(
               book.title,
               maxLines: 1,
@@ -219,7 +223,7 @@ class _RecentReadsViewState extends ConsumerState<RecentReadsView> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             if (book.author.isNotEmpty)
               Text(
                 book.author,
@@ -227,24 +231,19 @@ class _RecentReadsViewState extends ConsumerState<RecentReadsView> {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 13,
+                  fontSize: 12,
                 ),
               ),
             if (book.readingProgress > 0 && !book.isDeleted) ...[
-              const SizedBox(height: 10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(2),
-                child: LinearProgressIndicator(
-                  value: book.readingProgress,
-                  minHeight: 3,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${(book.readingProgress * 100).toStringAsFixed(0)}% · ${l10n.lastRead}',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+              const SizedBox(height: 6),
+              SizedBox(
+                width: 160,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    value: book.readingProgress,
+                    minHeight: 2,
+                  ),
                 ),
               ),
             ],

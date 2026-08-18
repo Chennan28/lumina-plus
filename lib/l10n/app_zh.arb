@@ -1532,4 +1532,30 @@
   "@increaseLineSpacing": {
     "description": "增大行距按钮提示"
   }
+,
+
+  "editSortOrder": "编辑排序",
+  "@editSortOrder": {
+    "description": "打开系列内序列号排序编辑器的按钮"
+  },
+
+  "applySort": "应用",
+  "@applySort": {
+    "description": "应用输入的序列号"
+  },
+
+  "sortApplied": "排序已应用",
+  "@sortApplied": {
+    "description": "应用新系列顺序成功后的提示"
+  },
+
+  "sortApplyFailed": "排序应用失败",
+  "@sortApplyFailed": {
+    "description": "应用新系列顺序失败时的提示"
+  },
+
+  "sortEditorHint": "在每本书上输入序号（1、2、3…）后点击“应用”即可排序，序号不会在正常浏览时显示。",
+  "@sortEditorHint": {
+    "description": "序列号排序编辑器内的提示文字"
+  }
 }

@@ -903,4 +903,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get increaseLineSpacing => 'Increase line spacing';
 
+
+  @override
+  String get editSortOrder => 'Edit Order';
+
+  @override
+  String get applySort => 'Apply';
+
+  @override
+  String get sortApplied => 'Order applied';
+
+  @override
+  String get sortApplyFailed => 'Failed to apply order';
+
+  @override
+  String get sortEditorHint =>
+      'Enter a number on each book (1, 2, 3...) and press Apply to reorder. Numbers are not shown outside the editor.';
+
 }

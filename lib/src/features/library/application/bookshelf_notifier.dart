@@ -901,6 +901,26 @@ class BookshelfNotifier extends _$BookshelfNotifier {
     );
   }
 
+  /// Apply a full order for a series' books (used by the sequence-number
+  /// sort editor). [orderedBookIds] must contain the same ids as the
+  /// series' current members.
+  Future<bool> applySeriesOrder(
+    int seriesId,
+    List<int> orderedBookIds,
+  ) async {
+    final s = _findSeries(seriesId);
+    if (s == null) return false;
+    final current = Set<int>.of(s.bookIds);
+    if (orderedBookIds.length != current.length ||
+        !current.containsAll(orderedBookIds)) {
+      return false;
+    }
+    s.bookIds = List<int>.of(orderedBookIds);
+    s.updatedAt = DateTime.now().millisecondsSinceEpoch;
+    _persistSeries();
+    return reloadQuietly();
+  }
+
   /// Manual reorder of the books inside a series (always available).
   Future<void> reorderSeriesBooks(
     int seriesId,

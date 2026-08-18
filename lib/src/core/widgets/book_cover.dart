@@ -12,6 +12,12 @@ class BookCover extends ConsumerWidget {
   final BorderRadius radius;
   final bool enableBorder;
   final int cacheHeight;
+
+  /// How the cover image fills the box. Defaults to [BoxFit.cover]
+  /// (fills and crops, matching typical shelf grids); use [BoxFit.contain]
+  /// to always show the full cover (e.g. large single-book views).
+  final BoxFit fit;
+
   static const int globalCacheHeight = 900;
 
   const BookCover({
@@ -20,6 +26,7 @@ class BookCover extends ConsumerWidget {
     this.radius = BorderRadius.zero,
     this.enableBorder = true,
     this.cacheHeight = globalCacheHeight,
+    this.fit = BoxFit.cover,
   });
 
   bool _isWellImageFile(String path) {
@@ -63,7 +70,7 @@ class BookCover extends ConsumerWidget {
           ),
           child: Image.file(
             file,
-            fit: BoxFit.cover,
+            fit: fit,
             cacheHeight: cacheHeight,
             // Prevent white flash during Hero transitions and rebuilds
             gaplessPlayback: true,

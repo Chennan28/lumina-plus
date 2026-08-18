@@ -882,4 +882,20 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get increaseLineSpacing => '增大行距';
 
+
+  @override
+  String get editSortOrder => '编辑排序';
+
+  @override
+  String get applySort => '应用';
+
+  @override
+  String get sortApplied => '排序已应用';
+
+  @override
+  String get sortApplyFailed => '排序应用失败';
+
+  @override
+  String get sortEditorHint => '在每本书上输入序号（1、2、3…）后点击“应用”即可排序，序号不会在正常浏览时显示。';
+
 }

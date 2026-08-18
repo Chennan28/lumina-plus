@@ -1522,4 +1522,30 @@
   "@increaseLineSpacing": {
     "description": "Increase line spacing button tooltip"
   }
+,
+
+  "editSortOrder": "Edit Order",
+  "@editSortOrder": {
+    "description": "Button that opens the sequence-number sort editor for a series"
+  },
+
+  "applySort": "Apply",
+  "@applySort": {
+    "description": "Applies the entered sequence numbers"
+  },
+
+  "sortApplied": "Order applied",
+  "@sortApplied": {
+    "description": "Toast after applying the new series order"
+  },
+
+  "sortApplyFailed": "Failed to apply order",
+  "@sortApplyFailed": {
+    "description": "Toast when applying the new series order fails"
+  },
+
+  "sortEditorHint": "Enter a number on each book (1, 2, 3...) and press Apply to reorder. Numbers are not shown outside the editor.",
+  "@sortEditorHint": {
+    "description": "Hint shown inside the sequence-number sort editor"
+  }
 }

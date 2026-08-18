@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ereader/src/core/services/toast_service.dart';
@@ -55,6 +56,12 @@ class _SeriesShelfScreenState extends ConsumerState<SeriesShelfScreen> {
   final Set<int> _selectedBookIds = {};
   bool _isSelectionMode = false;
 
+  /// Sequence-number sort editor state: while true each book shows a number
+  /// input; applying the numbers reorders the series. The numbers themselves
+  /// are never shown in normal browsing mode.
+  bool _isSorting = false;
+  Map<int, TextEditingController> _sortControllers = {};
+
   void _toggleBookSelection(int bookId) {
     setState(() {
       if (!_selectedBookIds.add(bookId)) {
@@ -70,21 +77,88 @@ class _SeriesShelfScreenState extends ConsumerState<SeriesShelfScreen> {
     });
   }
 
+  void _enterSorting(SeriesDetail detail) {
+    _disposeSortControllers();
+    final controllers = <int, TextEditingController>{};
+    for (var i = 0; i < detail.books.length; i++) {
+      controllers[detail.books[i].id] = TextEditingController(
+        text: '${i + 1}',
+      );
+    }
+    setState(() {
+      _sortControllers = controllers;
+      _isSorting = true;
+    });
+  }
+
+  void _exitSorting() {
+    _disposeSortControllers();
+    setState(() => _isSorting = false);
+  }
+
+  void _disposeSortControllers() {
+    for (final c in _sortControllers.values) {
+      c.dispose();
+    }
+    _sortControllers = {};
+  }
+
+  /// Reads the entered sequence numbers (stable sort, so equal numbers keep
+  /// their current relative order) and persists the new series order.
+  Future<void> _applySortOrder(SeriesDetail detail) async {
+    final l10n = AppLocalizations.of(context)!;
+    final numbers = <int, int>{};
+    for (var i = 0; i < detail.books.length; i++) {
+      final book = detail.books[i];
+      final text = _sortControllers[book.id]?.text.trim() ?? '';
+      final n = int.tryParse(text);
+      numbers[book.id] = n ?? (i + 1);
+    }
+    final indexed = detail.books.indexed.toList();
+    indexed.sort((a, b) {
+      final na = numbers[a.$2.id] ?? 0;
+      final nb = numbers[b.$2.id] ?? 0;
+      if (na != nb) return na.compareTo(nb);
+      return a.$1.compareTo(b.$1);
+    });
+    final orderedIds = indexed.map((e) => e.$2.id).toList();
+
+    final ok = await ref
+        .read(bookshelfNotifierProvider.notifier)
+        .applySeriesOrder(widget.seriesId, orderedIds);
+    if (!mounted) return;
+    if (ok) {
+      ToastService.showSuccess(l10n.sortApplied);
+      _exitSorting();
+    } else {
+      ToastService.showError(l10n.sortApplyFailed);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(seriesDetailProvider(widget.seriesId));
     final bookshelfLoading = ref.watch(bookshelfNotifierProvider).isLoading;
 
     return PopScope(
-      canPop: !_isSelectionMode,
+      canPop: !_isSelectionMode && !_isSorting,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && _isSelectionMode) _exitSelection();
+        if (!didPop && _isSorting) _exitSorting();
       },
       child: Scaffold(
         appBar: AppBar(
           title: Text(detailAsync.valueOrNull?.series.name ?? ''),
           actions: [
-            if (_isSelectionMode)
+            if (_isSorting)
+              TextButton(
+                onPressed: () {
+                  final detail = detailAsync.valueOrNull;
+                  if (detail != null) _applySortOrder(detail);
+                },
+                child: Text(AppLocalizations.of(context)!.applySort),
+              )
+            else if (_isSelectionMode)
               IconButton(
                 tooltip: AppLocalizations.of(context)!.selectAll,
                 icon: Icon(
@@ -105,13 +179,22 @@ class _SeriesShelfScreenState extends ConsumerState<SeriesShelfScreen> {
                   });
                 },
               )
-            else if (detailAsync.valueOrNull != null)
+            else if (detailAsync.valueOrNull != null) ...[
+              IconButton(
+                tooltip: AppLocalizations.of(context)!.editSortOrder,
+                icon: const Icon(Icons.sort_by_alpha_outlined),
+                onPressed: () {
+                  final detail = detailAsync.valueOrNull;
+                  if (detail != null) _enterSorting(detail);
+                },
+              ),
               IconButton(
                 tooltip: AppLocalizations.of(context)!.select,
                 icon: const Icon(Icons.checklist_outlined),
                 onPressed: () => setState(() => _isSelectionMode = true),
               ),
-            if (!_isSelectionMode && detailAsync.valueOrNull != null)
+            ],
+            if (!_isSelectionMode && !_isSorting && detailAsync.valueOrNull != null)
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert_outlined),
                 onSelected: (value) => _handleMenuAction(context, value),
@@ -180,26 +263,74 @@ class _SeriesShelfScreenState extends ConsumerState<SeriesShelfScreen> {
     return CustomScrollView(
       key: PageStorageKey<String>('series_${widget.seriesId}'),
       slivers: [
+        // Hint bar shown while the sequence-number sort editor is active.
+        if (_isSorting)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Text(
+                AppLocalizations.of(context)!.sortEditorHint,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
         ReorderableShelfGrid<ShelfBook>(
           items: detail.books,
-          // The series page is always manually ordered.
-          dragEnabled: !_isSelectionMode,
+          // Sorting inside a series is done with sequence numbers (see the
+          // sort editor), so drag-reordering is disabled here.
+          dragEnabled: false,
           viewMode: ViewMode.relaxed,
           itemKey: (book) => ValueKey<String>('sb${book.id}'),
-          onReorder: (oldIndex, newIndex) => ref
-              .read(bookshelfNotifierProvider.notifier)
-              .reorderSeriesBooks(widget.seriesId, oldIndex, newIndex),
-          itemBuilder: (context, book) => BookGridItem(
-            book: book,
-            isSelectionMode: _isSelectionMode,
-            isSelected: _selectedBookIds.contains(book.id),
-            viewMode: ViewMode.relaxed,
-            onTap: _isSelectionMode
-                ? () => _toggleBookSelection(book.id)
-                : null,
-            // Long-press is reserved for drag-reordering in this screen;
-            // selection mode is entered from the app bar action instead.
-            onLongPress: null,
+          onReorder: (oldIndex, newIndex) {},
+          itemBuilder: (context, book) => Stack(
+            children: [
+              BookGridItem(
+                book: book,
+                isSelectionMode: _isSelectionMode,
+                isSelected: _selectedBookIds.contains(book.id),
+                viewMode: ViewMode.relaxed,
+                onTap: _isSelectionMode
+                    ? () => _toggleBookSelection(book.id)
+                    : (_isSorting ? () {} : null),
+                onLongPress: null,
+              ),
+              if (_isSorting)
+                Positioned(
+                  right: 2,
+                  bottom: 2,
+                  child: Container(
+                    width: 46,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      controller: _sortControllers[book.id],
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      maxLength: 3,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        counterText: '',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         if (_isSelectionMode)

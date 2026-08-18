@@ -1717,4 +1717,35 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   /// **'Increase line spacing'**
   String get increaseLineSpacing;
 
+
+  /// Button that opens the sequence-number sort editor for a series
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Order'**
+  String get editSortOrder;
+
+  /// Applies the entered sequence numbers
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get applySort;
+
+  /// Toast after applying the new series order
+  ///
+  /// In en, this message translates to:
+  /// **'Order applied'**
+  String get sortApplied;
+
+  /// Toast when applying the new series order fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to apply order'**
+  String get sortApplyFailed;
+
+  /// Hint shown inside the sequence-number sort editor
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number on each book (1, 2, 3...) and press Apply to reorder. Numbers are not shown outside the editor.'**
+  String get sortEditorHint;
+
 }

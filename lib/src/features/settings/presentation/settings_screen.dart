@@ -125,7 +125,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     SettingsInfoTile(
                       icon: Icons.person_outline_outlined,
                       title: l10n.author,
-                      subtitle: 'Milk Feng',
+                      subtitle: 'Chennan',
                     ),
                     SettingsInfoTile(
                       icon: Icons.attribution_outlined,
