@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
-import 'package:lumina/src/features/reader/domain/epub_theme.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
+import 'package:ereader/src/features/reader/domain/epub_theme.dart';
 
 import '../data/epub_webview_handler.dart';
+import '../../../core/file_handling/image_saver.dart';
 import '../../../core/services/toast_service.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ImageViewer extends StatefulWidget {
   final String imageUrl;
@@ -41,6 +43,7 @@ class _ImageViewerState extends State<ImageViewer>
   double? _imageAspectRatio;
   bool _isLoading = true;
   bool _isClosing = false;
+  bool _isDownloading = false;
 
   bool _isSvg = false;
 
@@ -178,6 +181,35 @@ class _ImageViewerState extends State<ImageViewer>
     }
   }
 
+  /// Saves the original-format image bytes to the device photo gallery.
+  Future<void> _downloadImage() async {
+    final data = _imageData;
+    if (data == null || _isDownloading) return;
+    final l10n = AppLocalizations.of(context)!;
+
+    setState(() => _isDownloading = true);
+    final ok = await ImageSaver.saveToGallery(
+      bytes: data,
+      mimeType: ImageSaver.mimeTypeFromUrl(widget.imageUrl),
+      fileName: ImageSaver.fileNameFromUrl(widget.imageUrl),
+    );
+    if (!mounted) return;
+    setState(() => _isDownloading = false);
+
+    if (ok) {
+      HapticFeedback.mediumImpact();
+      ToastService.showSuccess(
+        l10n.imageSavedToGallery,
+        theme: widget.epubTheme.themeData,
+      );
+    } else {
+      ToastService.showError(
+        l10n.imageSaveFailed,
+        theme: widget.epubTheme.themeData,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -240,6 +272,34 @@ class _ImageViewerState extends State<ImageViewer>
                         child: canZoom
                             ? _buildInteractiveViewer()
                             : Opacity(opacity: t, child: _buildStaticImage()),
+                      ),
+                    ),
+                  ),
+
+                // Download button (visible once fully expanded)
+                if (isExpanded && _imageData != null)
+                  Positioned(
+                    top: MediaQuery.paddingOf(context).top + 12,
+                    right: 16,
+                    child: Material(
+                      color: Colors.black54,
+                      shape: const CircleBorder(),
+                      child: IconButton(
+                        tooltip: AppLocalizations.of(context)!.downloadImage,
+                        icon: _isDownloading
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.download_outlined,
+                                color: Colors.white,
+                              ),
+                        onPressed: _isDownloading ? null : () => _downloadImage(),
                       ),
                     ),
                   ),

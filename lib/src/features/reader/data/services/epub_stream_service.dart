@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:lumina/src/rust/api/epub.dart' as rust_epub;
+import 'package:ereader/src/rust/api/epub.dart' as rust_epub;
 import 'package:path/path.dart' as p;
 
 class EpubStreamService {

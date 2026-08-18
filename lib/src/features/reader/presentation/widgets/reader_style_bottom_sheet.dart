@@ -1,16 +1,16 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lumina/l10n/app_localizations.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
-import 'package:lumina/src/core/theme/app_theme_settings.dart';
-import 'package:lumina/src/core/widgets/integer_stepper.dart';
-import 'package:lumina/src/core/widgets/labeled_switch_tile.dart';
-import 'package:lumina/src/core/widgets/settings_section_title.dart';
-import 'package:lumina/src/core/widgets/settings_sub_label.dart';
-import 'package:lumina/src/core/widgets/theme_variant_chip.dart';
-import 'package:lumina/src/features/reader/domain/reader_settings.dart';
+import 'package:ereader/l10n/app_localizations.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/theme/app_theme_settings.dart';
+import 'package:ereader/src/core/widgets/integer_stepper.dart';
+import 'package:ereader/src/core/widgets/labeled_switch_tile.dart';
+import 'package:ereader/src/core/widgets/settings_section_title.dart';
+import 'package:ereader/src/core/widgets/settings_sub_label.dart';
+import 'package:ereader/src/core/widgets/theme_variant_chip.dart';
+import 'package:ereader/src/features/reader/domain/reader_settings.dart';
 import '../../application/reader_settings_notifier.dart';
 import 'reader_font_selector.dart';
 import 'reader_link_handling_selector.dart';
@@ -41,10 +41,15 @@ class _ReaderStyleBottomSheetState
   late String? _fontFileName;
   late bool _overrideFontFamily;
   late bool _volumeKeyTurnsPage;
+  late double _lineHeight;
 
   static const int _marginMin = 0;
   static const int _marginMax = 64;
   static const int _marginStep = 2;
+
+  static const double _lineHeightMin = 0.6;
+  static const double _lineHeightMax = 2.0;
+  static const double _lineHeightStep = 0.1;
 
   @override
   void initState() {
@@ -62,6 +67,7 @@ class _ReaderStyleBottomSheetState
     _pageAnimation = s.pageAnimation;
     _fontFileName = s.fontFileName;
     _overrideFontFamily = s.overrideFontFamily;
+    _lineHeight = s.lineHeight;
     _volumeKeyTurnsPage = s.volumeKeyTurnsPage;
   }
 
@@ -114,11 +120,11 @@ class _ReaderStyleBottomSheetState
                               final fullWidth = constraints.maxWidth + 48;
 
                               final lightPresets =
-                                  LuminaThemePreset.lightPresets;
-                              final darkPresets = LuminaThemePreset.darkPresets;
+                                  EReaderThemePreset.lightPresets;
+                              final darkPresets = EReaderThemePreset.darkPresets;
 
                               // Build a plain Row of chips for the given preset list.
-                              Row presetRow(List<LuminaThemePreset> presets) {
+                              Row presetRow(List<EReaderThemePreset> presets) {
                                 return Row(
                                   children: presets.map((preset) {
                                     return Padding(
@@ -200,6 +206,58 @@ class _ReaderStyleBottomSheetState
                     setState(() => _scale = v);
                     _notifier.setZoom(v);
                   },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Line spacing
+                Row(
+                  children: [
+                    SettingsSubLabel(label: l10n.readerLineSpacing),
+                    const Spacer(),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      tooltip: l10n.decreaseLineSpacing,
+                      onPressed: _lineHeight > _lineHeightMin
+                          ? () {
+                              setState(() {
+                                _lineHeight =
+                                    (_lineHeight - _lineHeightStep)
+                                        .clamp(_lineHeightMin, _lineHeightMax);
+                              });
+                              _notifier.setLineHeight(_lineHeight);
+                            }
+                          : null,
+                      icon: const Icon(Icons.remove_circle_outline),
+                    ),
+                    SizedBox(
+                      width: 52,
+                      child: Text(
+                        '${_lineHeight.toStringAsFixed(1)}x',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      tooltip: l10n.increaseLineSpacing,
+                      onPressed: _lineHeight < _lineHeightMax
+                          ? () {
+                              setState(() {
+                                _lineHeight =
+                                    (_lineHeight + _lineHeightStep)
+                                        .clamp(_lineHeightMin, _lineHeightMax);
+                              });
+                              _notifier.setLineHeight(_lineHeight);
+                            }
+                          : null,
+                      icon: const Icon(Icons.add_circle_outline),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 20),

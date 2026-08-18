@@ -96,11 +96,11 @@ jobs:
             # No signing secrets configured: generate a throwaway keystore so
             # the APK is still signed (required for Android sideloading).
             keytool -genkeypair -v -keystore android/app/upload-keystore.jks \
-              -storepass lumina-ci -keypass lumina-ci -alias upload \
+              -storepass ereader-ci -keypass ereader-ci -alias upload \
               -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Lumina CI, OU=CI, O=Lumina, L=Unknown, ST=Unknown, C=US"
-            echo "storePassword=lumina-ci" > android/key.properties
-            echo "keyPassword=lumina-ci" >> android/key.properties
+              -dname "CN=EReader CI, OU=CI, O=EReader, L=Unknown, ST=Unknown, C=US"
+            echo "storePassword=ereader-ci" > android/key.properties
+            echo "keyPassword=ereader-ci" >> android/key.properties
             echo "keyAlias=upload" >> android/key.properties
             echo "storeFile=upload-keystore.jks" >> android/key.properties
             echo "USING_SECRETS=false" >> $GITHUB_ENV
@@ -118,7 +118,7 @@ jobs:
             --build-name=${{ needs.prepare.outputs.build_name }} \
             --build-number=${{ needs.prepare.outputs.build_number }}
           
-          NEW_NAME="lumina-${{ github.ref_name }}-bundle-release.aab"
+          NEW_NAME="ereader-${{ github.ref_name }}-bundle-release.aab"
           
           mv build/app/outputs/bundle/release/app-release.aab build/outputs/$NEW_NAME
           echo "Generated $NEW_NAME"
@@ -129,7 +129,7 @@ jobs:
             --build-name=${{ needs.prepare.outputs.build_name }} \
             --build-number=${{ needs.prepare.outputs.build_number }}
           
-          NEW_NAME="lumina-${{ github.ref_name }}-universal-release.apk"
+          NEW_NAME="ereader-${{ github.ref_name }}-universal-release.apk"
           
           mv build/app/outputs/flutter-apk/app-release.apk build/outputs/$NEW_NAME
           echo "Generated $NEW_NAME"
@@ -145,7 +145,7 @@ jobs:
             abi=${file#app-}
             abi=${abi%-release.apk}
             
-            NEW_NAME="lumina-${{ github.ref_name }}-$abi-release.apk"
+            NEW_NAME="ereader-${{ github.ref_name }}-$abi-release.apk"
             
             mv "$file" "${{ github.workspace }}/build/outputs/$NEW_NAME"
             echo "Generated $NEW_NAME"
@@ -204,7 +204,7 @@ jobs:
 
           mkdir -p Payload
           mv build/ios/iphoneos/Runner.app Payload/
-          NAME_STORE="lumina-${{ github.ref_name }}-ios-store-unsigned.ipa"
+          NAME_STORE="ereader-${{ github.ref_name }}-ios-store-unsigned.ipa"
 
           zip -q -r build/outputs/$NAME_STORE Payload
           echo "Generated $NAME_STORE"
@@ -219,7 +219,7 @@ jobs:
 
           mkdir -p Payload
           mv build/ios/iphoneos/Runner.app Payload/
-          NAME_SIDELOAD="lumina-${{ github.ref_name }}-ios-sideload-unsigned.ipa"
+          NAME_SIDELOAD="ereader-${{ github.ref_name }}-ios-sideload-unsigned.ipa"
 
           zip -q -r build/outputs/$NAME_SIDELOAD Payload
           echo "Generated $NAME_SIDELOAD"

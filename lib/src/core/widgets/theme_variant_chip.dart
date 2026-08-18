@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
 
 /// A square 56×56 chip that previews a [ColorScheme] and indicates selection.
 ///

@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:flutter/foundation.dart';
-import 'package:lumina/src/core/storage/app_storage.dart';
-import 'package:lumina/src/core/storage/app_storage_constants.dart';
-import 'package:lumina/src/features/library/data/services/epub_import_workers.dart';
+import 'package:ereader/src/core/storage/app_storage.dart';
+import 'package:ereader/src/core/storage/app_storage_constants.dart';
+import 'package:ereader/src/features/library/data/services/epub_import_workers.dart';
 import 'package:fpdart/fpdart.dart';
 import '../../domain/shelf_book.dart';
 import '../../domain/book_manifest.dart';

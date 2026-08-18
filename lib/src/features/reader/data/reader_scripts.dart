@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:lumina/src/features/reader/domain/epub_theme.dart';
-import 'package:lumina/src/web/web_assets.dart';
+import 'package:ereader/src/features/reader/domain/epub_theme.dart';
+import 'package:ereader/src/web/web_assets.dart';
 
 String colorToHex(Color color) {
   final argb = color.toARGB32();
@@ -38,6 +38,7 @@ String generateSkeletonHtml(
     'direction': direction,
     'theme': {
       'zoom': theme.zoom,
+      'lineHeight': theme.lineHeight,
 
       'shouldOverrideTextColor': theme.shouldOverrideTextColor,
       'primaryColor': colorToMap(primaryColor),

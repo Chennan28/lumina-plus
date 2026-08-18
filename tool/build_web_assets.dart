@@ -1,7 +1,7 @@
 import 'dart:io';
 
 void main() async {
-  print('🚀 start build lumina web assets...');
+  print('🚀 start build ereader web assets...');
 
   String minifiedJs = '';
   String minifiedPaginationCss = '';

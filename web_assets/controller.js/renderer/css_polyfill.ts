@@ -29,6 +29,23 @@ export class CssPolyfillManager {
   ): void {
     const value = style.getPropertyValue(property);
     if (value && !value.includes('calc')) {
+      // line-height supports px/pt/em/rem and unit-less numbers; apply the
+      // user line-height multiplier on top of the zoom scale.
+      if (property === 'line-height') {
+        const match = value.trim().toLowerCase().match(/^(\d+(?:\.\d+)?)(px|pt|em|rem)?$/);
+        if (match) {
+          const unit = match[2] || '';
+          const zoomFactor = (unit === 'px' || unit === 'pt')
+            ? ' * var(--lumina-zoom)'
+            : '';
+          style.setProperty(
+            property,
+            'calc(' + value + zoomFactor + ' * var(--lumina-line-height))',
+            style.getPropertyPriority(property)
+          );
+        }
+        return;
+      }
       const match = value.trim().toLowerCase().match(/^(\d+(?:\.\d+)?)(px|pt)$/);
       if (match) {
         style.setProperty(

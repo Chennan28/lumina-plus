@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
 
 /// A single option chip used inside a segmented chip-row.
 ///

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ereader/l10n/app_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 
 /// Displays the app icon, logo SVG, and version string at the top of the
@@ -9,7 +10,6 @@ class SettingsAppHeader extends StatelessWidget {
   final String version;
 
   static const _appSvgPath = 'assets/icons/icon.svg';
-  static const _logoSvgPath = 'assets/logos/logo.svg';
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +34,12 @@ class SettingsAppHeader extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        // App name logo
-        SvgPicture.asset(
-          _logoSvgPath,
-          width: 96,
-          colorFilter: ColorFilter.mode(
-            Theme.of(context).colorScheme.onSurface,
-            BlendMode.srcIn,
+        // App name
+        Text(
+          AppLocalizations.of(context)!.appName,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
           ),
         ),
 

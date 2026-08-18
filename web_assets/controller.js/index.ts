@@ -1,6 +1,6 @@
-﻿import { LuminaApi } from './api/lumina_api';
+﻿import { EReaderApi } from './api/ereader_api';
 import { Renderer } from './renderer/renderer';
 
-const api: LuminaApi = new Renderer();
+const api: EReaderApi = new Renderer();
 window.api = api;
 

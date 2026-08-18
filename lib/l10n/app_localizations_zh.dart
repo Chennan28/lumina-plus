@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appName => 'Lumina';
+  String get appName => 'EReader';
 
   @override
   String get settings => '设置';
@@ -324,7 +324,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get remoteFolderPath => '远程文件夹路径';
 
   @override
-  String get remoteFolderHint => 'LuminaReader/';
+  String get remoteFolderHint => 'EReader/';
 
   @override
   String get folderPathRequired => '文件夹路径为必填项';
@@ -627,7 +627,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get openStorageLocation => '打开存储位置';
 
   @override
-  String get openStorageLocationSubtitle => '在文件管理器中打开 Lumina 的存储目录';
+  String get openStorageLocationSubtitle => '在文件管理器中打开 EReader 的存储目录';
 
   @override
   String openStorageLocationFailed(String error) {
@@ -636,7 +636,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get openStorageLocationIOSMessage =>
-      '请在文件应用中打开“我的 iPhone/iPad”下的“Lumina”文件夹来访问存储位置';
+      '请在文件应用中打开“我的 iPhone/iPad”下的“EReader”文件夹来访问存储位置';
 
   @override
   String get unsavedChangesTitle => '未保存的修改';
@@ -855,5 +855,31 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get select => '选择';
+
+
+  @override
+  String get recentReads => '最近阅读';
+
+  @override
+  String get noRecentReads => '暂无最近阅读记录';
+
+
+  @override
+  String get downloadImage => '下载图片';
+
+  @override
+  String get imageSavedToGallery => '图片已保存到相册';
+
+  @override
+  String get imageSaveFailed => '图片保存失败';
+
+  @override
+  String get readerLineSpacing => '行距';
+
+  @override
+  String get decreaseLineSpacing => '减小行距';
+
+  @override
+  String get increaseLineSpacing => '增大行距';
 
 }

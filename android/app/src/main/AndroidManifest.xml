@@ -1,13 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Storage permissions for file picker -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Needed to save images to the gallery on Android 9 and below -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
     
     <application
-        android:label="Lumina"
+        android:label="EReader"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
@@ -71,7 +73,7 @@
         
         <!-- DocumentsProvider for exposing EPUB files through Storage Access Framework -->
         <provider
-            android:name=".LuminaDocumentsProvider"
+            android:name=".EReaderDocumentsProvider"
             android:authorities="${applicationId}.documents"
             android:exported="true"
             android:grantUriPermissions="true"

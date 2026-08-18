@@ -4,15 +4,15 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
-import 'package:lumina/src/core/widgets/book_cover.dart';
-import 'package:lumina/src/features/reader/domain/epub_theme.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/widgets/book_cover.dart';
+import 'package:ereader/src/features/reader/domain/epub_theme.dart';
 
 import '../data/book_session.dart';
 import '../data/epub_webview_handler.dart';
 import '../data/reader_scripts.dart';
-import 'package:lumina/src/web/api/webview_bridge.dart';
-import 'package:lumina/src/web/api/lumina_api.dart';
+import 'package:ereader/src/web/api/webview_bridge.dart';
+import 'package:ereader/src/web/api/ereader_api.dart';
 
 /// Controller for ReaderWebView that provides methods to control the WebView
 class ReaderWebViewController {
@@ -174,7 +174,7 @@ class _ReaderWebViewState extends State<ReaderWebView> {
   late EpubTheme _currentTheme;
 
   final WebViewBridge _bridge = WebViewBridge();
-  late final LuminaApi _api = LuminaApi(_bridge);
+  late final EReaderApi _api = EReaderApi(_bridge);
 
   @override
   void initState() {

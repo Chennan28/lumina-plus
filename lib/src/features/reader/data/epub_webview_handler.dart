@@ -2,9 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:lumina/src/core/storage/app_storage.dart';
-import 'package:lumina/src/features/library/domain/book_manifest.dart';
-import 'package:lumina/src/features/reader/data/services/epub_stream_service.dart';
+import 'package:ereader/src/core/storage/app_storage.dart';
+import 'package:ereader/src/features/library/domain/book_manifest.dart';
+import 'package:ereader/src/features/reader/data/services/epub_stream_service.dart';
 
 /// WebView request handler for streaming EPUB content
 /// Intercepts requests to virtual domain and serves files from compressed EPUB

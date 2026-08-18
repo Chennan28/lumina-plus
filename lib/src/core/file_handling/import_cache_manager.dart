@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:lumina/src/core/storage/app_storage.dart';
+import 'package:ereader/src/core/storage/app_storage.dart';
 import 'package:path/path.dart' as path;
 import 'package:saf_stream/saf_stream.dart';
 import 'platform_path.dart';

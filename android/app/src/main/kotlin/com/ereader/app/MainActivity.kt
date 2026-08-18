@@ -1,4 +1,4 @@
-package com.lumina.ereader
+package com.ereader.app
 
 import android.view.KeyEvent
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -11,6 +11,7 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         flutterEngine.plugins.add(NativePickerPlugin())
         flutterEngine.plugins.add(volumeControlPlugin)
+        flutterEngine.plugins.add(SaveImagePlugin())
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {

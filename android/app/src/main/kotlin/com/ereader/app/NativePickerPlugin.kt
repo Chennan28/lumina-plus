@@ -1,4 +1,4 @@
-package com.lumina.ereader
+package com.ereader.app
 
 import android.app.Activity
 import android.content.Intent
@@ -238,7 +238,7 @@ class NativePickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     /**
-     * Launches folder picker for selecting a Lumina backup directory.
+     * Launches folder picker for selecting an EReader backup directory.
      *
      * Returns a list of all file URIs inside the chosen directory tree.
      */
@@ -596,6 +596,6 @@ class NativePickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     // -------------------------------------------------------------------------
 
     companion object {
-        const val CHANNEL_NAME = "com.lumina.ereader/native_picker"
+        const val CHANNEL_NAME = "com.ereader.app/native_picker"
     }
 }

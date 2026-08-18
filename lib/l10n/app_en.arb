@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
   
-  "appName": "Lumina",
+  "appName": "EReader",
   "@appName": {
     "description": "Application name"
   },
@@ -552,7 +552,7 @@
     "description": "Remote folder path label"
   },
   
-  "remoteFolderHint": "LuminaReader/",
+  "remoteFolderHint": "EReader/",
   "@remoteFolderHint": {
     "description": "Remote folder path hint"
   },
@@ -1088,7 +1088,7 @@
     "description": "Open storage location action label"
   },
 
-  "openStorageLocationSubtitle": "Open the folder where Lumina stores its data (cache, books, etc.)",
+  "openStorageLocationSubtitle": "Open the folder where EReader stores its data (cache, books, etc.)",
   "@openStorageLocationSubtitle": {
     "description": "Subtitle for open storage location action"
   },
@@ -1103,7 +1103,7 @@
     }
   },
 
-  "openStorageLocationIOSMessage": "Please open the \"Lumina\" folder under the \"On My iPhone/iPad\" section in the Files app to access your data.",
+  "openStorageLocationIOSMessage": "Please open the \"EReader\" folder under the \"On My iPhone/iPad\" section in the Files app to access your data.",
   "@openStorageLocationIOSMessage": {
     "description": "Message shown on iOS when user tries to open storage location, since it's not possible to open it directly"
   },
@@ -1479,5 +1479,47 @@
   "select": "Select",
   "@select": {
     "description": "Action that enters selection mode"
+  }
+,
+
+  "recentReads": "Recent Reads",
+  "@recentReads": {
+    "description": "Fixed leftmost shelf tab showing recently read books"
+  },
+
+  "noRecentReads": "No recent reads yet",
+  "@noRecentReads": {
+    "description": "Empty state for the recent reads tab"
+  }
+,
+
+  "downloadImage": "Download Image",
+  "@downloadImage": {
+    "description": "Button that saves the viewed image to the photo gallery"
+  },
+
+  "imageSavedToGallery": "Image saved to gallery",
+  "@imageSavedToGallery": {
+    "description": "Toast after saving an image to the photo gallery"
+  },
+
+  "imageSaveFailed": "Failed to save image",
+  "@imageSaveFailed": {
+    "description": "Toast when saving an image to the gallery fails"
+  },
+
+  "readerLineSpacing": "Line Spacing",
+  "@readerLineSpacing": {
+    "description": "Line spacing setting label"
+  },
+
+  "decreaseLineSpacing": "Decrease line spacing",
+  "@decreaseLineSpacing": {
+    "description": "Decrease line spacing button tooltip"
+  },
+
+  "increaseLineSpacing": "Increase line spacing",
+  "@increaseLineSpacing": {
+    "description": "Increase line spacing button tooltip"
   }
 }

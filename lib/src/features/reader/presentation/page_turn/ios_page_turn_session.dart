@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 
 class IOSPageTurnSession {
   static const MethodChannel _nativePageTurnChannel = MethodChannel(
-    'lumina/reader_page_turn',
+    'ereader/reader_page_turn',
   );
 
   int _currentToken = 0;

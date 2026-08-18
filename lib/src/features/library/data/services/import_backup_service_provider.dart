@@ -1,6 +1,6 @@
-import 'package:lumina/src/features/library/data/repositories/book_manifest_repository_provider.dart';
-import 'package:lumina/src/features/library/data/repositories/shelf_book_repository_provider.dart';
-import 'package:lumina/src/features/library/data/services/unified_import_service_provider.dart';
+import 'package:ereader/src/features/library/data/repositories/book_manifest_repository_provider.dart';
+import 'package:ereader/src/features/library/data/repositories/shelf_book_repository_provider.dart';
+import 'package:ereader/src/features/library/data/services/unified_import_service_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'import_backup_service.dart';

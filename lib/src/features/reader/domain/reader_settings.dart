@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lumina/src/core/theme/app_theme_settings.dart';
-import 'package:lumina/src/features/reader/domain/epub_theme.dart';
+import 'package:ereader/src/core/theme/app_theme_settings.dart';
+import 'package:ereader/src/features/reader/domain/epub_theme.dart';
 
 /// Controls how the reader handles external link taps.
 enum ReaderLinkHandling { ask, always, never }
@@ -10,6 +10,10 @@ enum ReaderPageAnimation { none, slide }
 
 class ReaderSettings {
   final double zoom;
+
+  /// Line-height multiplier (1.0 = epub default).
+  final double lineHeight;
+
   final bool followAppTheme;
 
   /// Index into [AppThemeSettings.allColorSchemes] representing the reader theme.
@@ -34,6 +38,7 @@ class ReaderSettings {
 
   const ReaderSettings({
     this.zoom = 1.0,
+    this.lineHeight = 1.0,
     this.followAppTheme = true,
     this.themeIndex = 0,
     this.marginTop = 16.0,
@@ -54,6 +59,7 @@ class ReaderSettings {
 
   ReaderSettings copyWith({
     double? zoom,
+    double? lineHeight,
     bool? followAppTheme,
     int? themeIndex,
     double? marginTop,
@@ -69,6 +75,7 @@ class ReaderSettings {
   }) {
     return ReaderSettings(
       zoom: zoom ?? this.zoom,
+      lineHeight: lineHeight ?? this.lineHeight,
       followAppTheme: followAppTheme ?? this.followAppTheme,
       themeIndex: themeIndex ?? this.themeIndex,
       marginTop: marginTop ?? this.marginTop,
@@ -89,10 +96,10 @@ class ReaderSettings {
   EpubTheme toEpubTheme(BuildContext context) {
     final appColorScheme = Theme.of(context).colorScheme;
     final appPreset =
-        Theme.of(context).extension<LuminaThemeExtension>()?.preset ??
-        LuminaThemePreset.standardLight;
+        Theme.of(context).extension<EReaderThemeExtension>()?.preset ??
+        EReaderThemePreset.standardLight;
 
-    final LuminaThemePreset preset;
+    final EReaderThemePreset preset;
     final ColorScheme colorScheme;
 
     if (followAppTheme) {
@@ -105,6 +112,7 @@ class ReaderSettings {
 
     return EpubTheme(
       zoom: zoom,
+      lineHeight: lineHeight,
       shouldOverrideTextColor: preset.shouldOverrideTextColor,
       colorScheme: colorScheme,
       overridePrimaryColor: preset.overridePrimaryColor,
@@ -119,10 +127,10 @@ class ReaderSettings {
     );
   }
 
-  /// The [LuminaThemePreset] currently selected by [themeIndex].
-  LuminaThemePreset get currentPreset =>
-      LuminaThemePreset.fromIndex(themeIndex);
+  /// The [EReaderThemePreset] currently selected by [themeIndex].
+  EReaderThemePreset get currentPreset =>
+      EReaderThemePreset.fromIndex(themeIndex);
 
-  /// The [ColorScheme] currently selected from [LuminaThemePreset].
+  /// The [ColorScheme] currently selected from [EReaderThemePreset].
   ColorScheme get currentColorScheme => currentPreset.colorScheme;
 }

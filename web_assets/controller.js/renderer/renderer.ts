@@ -7,7 +7,7 @@ import {
   BlackColor,
   ReaderConfig
 } from '../common/types';
-import { LuminaApi } from '../api/lumina_api';
+import { EReaderApi } from '../api/ereader_api';
 import { FlutterBridge } from '../api/flutter_bridge';
 import { applyTyp } from '../typ/typ';
 import { FrameManager } from './frame_manager';
@@ -17,7 +17,7 @@ import { ThemeManager } from './theme_manager';
 import { CssPolyfillManager } from './css_polyfill';
 import { ResourceManager } from './resource_manager';
 
-export class Renderer implements LuminaApi {
+export class Renderer implements EReaderApi {
   private state: ReaderState;
 
   private frameMgr: FrameManager;

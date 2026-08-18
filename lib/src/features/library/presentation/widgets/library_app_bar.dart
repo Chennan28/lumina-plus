@@ -182,6 +182,14 @@ class _LibraryAppBarState extends State<LibraryAppBar>
   List<Widget> _buildTabs(BuildContext context) {
     final tabs = <Widget>[];
 
+    // "Recent Reads" tab — fixed, leftmost, cannot be removed.
+    tabs.add(
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 13),
+        child: Tab(child: Text(AppLocalizations.of(context)!.recentReads)),
+      ),
+    );
+
     tabs.add(
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 13),

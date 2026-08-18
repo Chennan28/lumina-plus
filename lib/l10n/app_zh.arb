@@ -1,7 +1,7 @@
 {
   "@@locale": "zh",
   
-  "appName": "Lumina",
+  "appName": "EReader",
   "@appName": {
     "description": "应用名称"
   },
@@ -562,7 +562,7 @@
     "description": "远程文件夹路径标签"
   },
   
-  "remoteFolderHint": "LuminaReader/",
+  "remoteFolderHint": "EReader/",
   "@remoteFolderHint": {
     "description": "远程文件夹路径提示"
   },
@@ -1098,7 +1098,7 @@
     "description": "打开存储位置操作"
   },
 
-  "openStorageLocationSubtitle": "在文件管理器中打开 Lumina 的存储目录",
+  "openStorageLocationSubtitle": "在文件管理器中打开 EReader 的存储目录",
   "@openStorageLocationSubtitle": {
     "description": "打开存储位置的副标题"
   },
@@ -1113,7 +1113,7 @@
     }
   },
 
-  "openStorageLocationIOSMessage": "请在文件应用中打开“我的 iPhone/iPad”下的“Lumina”文件夹来访问存储位置",
+  "openStorageLocationIOSMessage": "请在文件应用中打开“我的 iPhone/iPad”下的“EReader”文件夹来访问存储位置",
   "@openStorageLocationIOSMessage": {
     "description": "iOS 打开存储位置提示"
   },
@@ -1489,5 +1489,47 @@
   "select": "选择",
   "@select": {
     "description": "进入选择模式的操作"
+  }
+,
+
+  "recentReads": "最近阅读",
+  "@recentReads": {
+    "description": "书架顶部固定的最近阅读分类标签"
+  },
+
+  "noRecentReads": "暂无最近阅读记录",
+  "@noRecentReads": {
+    "description": "最近阅读分类为空时的提示"
+  }
+,
+
+  "downloadImage": "下载图片",
+  "@downloadImage": {
+    "description": "将查看的图片保存到相册的按钮"
+  },
+
+  "imageSavedToGallery": "图片已保存到相册",
+  "@imageSavedToGallery": {
+    "description": "图片保存到相册成功后的提示"
+  },
+
+  "imageSaveFailed": "图片保存失败",
+  "@imageSaveFailed": {
+    "description": "图片保存到相册失败时的提示"
+  },
+
+  "readerLineSpacing": "行距",
+  "@readerLineSpacing": {
+    "description": "行距设置标签"
+  },
+
+  "decreaseLineSpacing": "减小行距",
+  "@decreaseLineSpacing": {
+    "description": "减小行距按钮提示"
+  },
+
+  "increaseLineSpacing": "增大行距",
+  "@increaseLineSpacing": {
+    "description": "增大行距按钮提示"
   }
 }

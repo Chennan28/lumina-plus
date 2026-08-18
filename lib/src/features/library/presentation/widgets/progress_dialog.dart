@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
-import 'package:lumina/src/features/library/application/progress_log.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
+import 'package:ereader/src/features/library/application/progress_log.dart';
 
 import '../../../../../l10n/app_localizations.dart';
 

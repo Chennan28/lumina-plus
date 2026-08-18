@@ -4,11 +4,11 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:lumina/src/features/reader/data/epub_webview_handler.dart';
-import 'package:lumina/src/features/reader/data/reader_scripts.dart';
-import 'package:lumina/src/features/reader/domain/epub_theme.dart';
+import 'package:ereader/src/features/reader/data/epub_webview_handler.dart';
+import 'package:ereader/src/features/reader/data/reader_scripts.dart';
+import 'package:ereader/src/features/reader/domain/epub_theme.dart';
 
 class FootnotePopupOverlay extends StatefulWidget {
   final Rect anchorRect;

@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:lumina/src/core/theme/app_theme_notifier.dart';
-import 'package:lumina/src/global_share_handler.dart';
+import 'package:ereader/src/core/theme/app_theme_notifier.dart';
+import 'package:ereader/src/global_share_handler.dart';
 import '../l10n/app_localizations.dart';
 import 'core/router/app_router.dart';
 
 /// Root application widget
-class LuminaReaderApp extends ConsumerWidget {
-  const LuminaReaderApp({super.key});
+class EReaderApp extends ConsumerWidget {
+  const EReaderApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,7 +21,7 @@ class LuminaReaderApp extends ConsumerWidget {
     final locale = Locale(systemLocale.split('_')[0]);
 
     return MaterialApp.router(
-      title: 'Lumina',
+      title: 'EReader',
       debugShowCheckedModeBanner: false,
       scrollBehavior: _NoOverscrollBehavior(),
 

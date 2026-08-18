@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// A text widget that can be expanded to show full content

@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Application name
   ///
   /// In en, this message translates to:
-  /// **'Lumina'**
+  /// **'EReader'**
   String get appName;
 
   /// Settings tab label
@@ -677,7 +677,7 @@ abstract class AppLocalizations {
   /// Remote folder path hint
   ///
   /// In en, this message translates to:
-  /// **'LuminaReader/'**
+  /// **'EReader/'**
   String get remoteFolderHint;
 
   /// Folder path validation error
@@ -1217,7 +1217,7 @@ abstract class AppLocalizations {
   /// Subtitle for open storage location action
   ///
   /// In en, this message translates to:
-  /// **'Open the folder where Lumina stores its data (cache, books, etc.)'**
+  /// **'Open the folder where EReader stores its data (cache, books, etc.)'**
   String get openStorageLocationSubtitle;
 
   /// Error message when opening storage location fails
@@ -1229,7 +1229,7 @@ abstract class AppLocalizations {
   /// Message shown on iOS when user tries to open storage location, since it's not possible to open it directly
   ///
   /// In en, this message translates to:
-  /// **'Please open the \"Lumina\" folder under the \"On My iPhone/iPad\" section in the Files app to access your data.'**
+  /// **'Please open the \"EReader\" folder under the \"On My iPhone/iPad\" section in the Files app to access your data.'**
   String get openStorageLocationIOSMessage;
 
   /// Title of the dialog shown when the user tries to leave edit mode with unsaved changes
@@ -1667,4 +1667,54 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
     'that was used.',
   );
+
+  /// Fixed leftmost shelf tab showing recently read books
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Reads'**
+  String get recentReads;
+
+  /// Empty state for the recent reads tab
+  ///
+  /// In en, this message translates to:
+  /// **'No recent reads yet'**
+  String get noRecentReads;
+
+
+  /// Button that saves the viewed image to the photo gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Download Image'**
+  String get downloadImage;
+
+  /// Toast after saving an image to the photo gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Image saved to gallery'**
+  String get imageSavedToGallery;
+
+  /// Toast when saving an image to the gallery fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save image'**
+  String get imageSaveFailed;
+
+  /// Line spacing setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Line Spacing'**
+  String get readerLineSpacing;
+
+  /// Decrease line spacing button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease line spacing'**
+  String get decreaseLineSpacing;
+
+  /// Increase line spacing button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Increase line spacing'**
+  String get increaseLineSpacing;
+
 }

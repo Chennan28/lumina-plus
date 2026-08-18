@@ -1,7 +1,7 @@
-# Agent Context & Instructions: Lumina Project
+# Agent Context & Instructions: EReader Project
 
 ## 1. Project Overview
-- **Name**: Lumina
+- **Name**: EReader
 - **Type**: Cross-platform Epub reader application.
 - **Framework**: Flutter
 - **Language Requirement**: **CRITICAL** - All generated code, inline comments, variable/function names, and git commit messages MUST be written strictly in English.

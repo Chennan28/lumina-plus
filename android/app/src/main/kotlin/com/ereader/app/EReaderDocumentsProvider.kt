@@ -1,4 +1,4 @@
-package com.lumina.ereader
+package com.ereader.app
 
 import android.database.Cursor
 import android.database.MatrixCursor
@@ -11,12 +11,12 @@ import java.io.File
 import java.io.FileNotFoundException
 
 /**
- * DocumentsProvider for Lumina to expose EPUB files and covers through Storage Access Framework.
+ * DocumentsProvider for EReader to expose EPUB files and covers through Storage Access Framework.
  */
-class LuminaDocumentsProvider : DocumentsProvider() {
+class EReaderDocumentsProvider : DocumentsProvider() {
 
     companion object {
-        private const val ROOT_ID = "lumina_books_root"
+        private const val ROOT_ID = "ereader_books_root"
         
         private val DEFAULT_ROOT_PROJECTION = arrayOf(
             DocumentsContract.Root.COLUMN_ROOT_ID,
@@ -58,7 +58,7 @@ class LuminaDocumentsProvider : DocumentsProvider() {
         result.newRow().apply {
             add(DocumentsContract.Root.COLUMN_ROOT_ID, ROOT_ID)
             add(DocumentsContract.Root.COLUMN_FLAGS, 0) 
-            add(DocumentsContract.Root.COLUMN_TITLE, "Lumina Books")
+            add(DocumentsContract.Root.COLUMN_TITLE, "EReader Books")
             add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, ROOT_ID)
             add(DocumentsContract.Root.COLUMN_ICON, R.mipmap.launcher_icon) 
             add(DocumentsContract.Root.COLUMN_SUMMARY, "Library & Covers")
@@ -74,7 +74,7 @@ class LuminaDocumentsProvider : DocumentsProvider() {
             val dir = getBaseDirectory()
             result.newRow().apply {
                 add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, ROOT_ID)
-                add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, "Lumina Books")
+                add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, "EReader Books")
                 add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR)
                 add(DocumentsContract.Document.COLUMN_SIZE, 0)
                 add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, dir.lastModified())

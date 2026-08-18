@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// Notion-like Minimalist Theme for Lumina Reader
+/// Notion-like Minimalist Theme for EReader Reader
 /// Philosophy: Content-first, monochrome, no shadows, serif typography
 class AppTheme {
   AppTheme._();

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
-import 'package:lumina/src/core/storage/app_storage.dart';
+import 'package:ereader/src/core/storage/app_storage.dart';
 import '../../features/library/domain/shelf_book.dart';
 import '../../features/library/domain/book_manifest.dart';
 import '../../features/library/domain/shelf_group.dart';

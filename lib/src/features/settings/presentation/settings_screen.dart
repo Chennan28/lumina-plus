@@ -4,22 +4,16 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lumina/src/core/services/toast_service.dart';
-import 'package:lumina/src/core/url_launcher/url_launcher.dart';
-import 'package:lumina/src/features/settings/presentation/widgets/settings_app_header.dart';
-import 'package:lumina/src/features/settings/presentation/widgets/settings_appearance_section.dart';
-import 'package:lumina/src/features/settings/presentation/widgets/settings_font_section.dart';
-import 'package:lumina/src/features/settings/presentation/widgets/settings_info_section.dart';
-import 'package:lumina/src/features/settings/presentation/widgets/backup_tile.dart';
-import 'package:lumina/src/features/settings/presentation/widgets/check_update_tile.dart';
-import 'package:lumina/src/features/settings/presentation/widgets/clean_cache_tile.dart';
+import 'package:ereader/src/core/services/toast_service.dart';
+import 'package:ereader/src/core/url_launcher/url_launcher.dart';
+import 'package:ereader/src/features/settings/presentation/widgets/settings_app_header.dart';
+import 'package:ereader/src/features/settings/presentation/widgets/settings_appearance_section.dart';
+import 'package:ereader/src/features/settings/presentation/widgets/settings_font_section.dart';
+import 'package:ereader/src/features/settings/presentation/widgets/settings_info_section.dart';
+import 'package:ereader/src/features/settings/presentation/widgets/backup_tile.dart';
+import 'package:ereader/src/features/settings/presentation/widgets/clean_cache_tile.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../l10n/app_localizations.dart';
-
-const bool _isStoreVersion = bool.fromEnvironment(
-  'IS_STORE_VERSION',
-  defaultValue: false,
-);
 
 /// Settings Screen - Shows app information, tips and credits
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -124,9 +118,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     SettingsInfoTile(
                       icon: Icons.code_outlined,
                       title: l10n.github,
-                      subtitle: 'github.com/MilkFeng/lumina.git',
+                      subtitle: 'github.com/Chennan28/lumina-plus.git',
                       onTap: () =>
-                          _launchUrl('https://github.com/MilkFeng/lumina.git'),
+                          _launchUrl('https://github.com/Chennan28/lumina-plus.git'),
                     ),
                     SettingsInfoTile(
                       icon: Icons.person_outline_outlined,
@@ -143,7 +137,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       subtitle: l10n.openSourceLicensesSubtitle,
                     ),
-                    if (!_isStoreVersion) const CheckUpdateTile(),
                   ],
                 ),
 
@@ -204,7 +197,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final packageInfo = await PackageInfo.fromPlatform();
     final String applicationId = packageInfo.packageName;
     final String authority = '$applicationId.documents';
-    const String rootId = 'lumina_books_root';
+    const String rootId = 'ereader_books_root';
     final String rootUri = 'content://$authority/root/$rootId';
 
     final intent = AndroidIntent(

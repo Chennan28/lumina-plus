@@ -129,6 +129,14 @@ class BookshelfNotifier extends _$BookshelfNotifier {
   static const String _seriesCounterKey = 'shelf_series_counter_v1';
   static const String _manualOrderKey = 'shelf_manual_order_v1';
 
+  /// Virtual "Recent Reads" tab id: fixed leftmost tab that cannot be
+  /// deleted and is selected by default on app launch. Shows up to 5 most
+  /// recently read books in a single-book carousel.
+  static const int recentReadsGroupId = -2;
+
+  /// Max number of books shown in the recent-reads tab.
+  static const int recentReadsLimit = 5;
+
   // LRU cache eviction order — stored here, not in BookshelfState, because it
   // is an internal optimization detail that widgets never need to read.
   final List<int?> _cacheOrder = [];
@@ -167,7 +175,12 @@ class BookshelfNotifier extends _$BookshelfNotifier {
             orElse: () => ViewMode.relaxed,
           )
         : ViewMode.relaxed;
-    return await _loadBooks(sortBy: savedSort, viewMode: savedViewMode);
+    // The app opens on the "Recent Reads" tab by default.
+    return await _loadBooks(
+      sortBy: savedSort,
+      viewMode: savedViewMode,
+      filterGroupId: recentReadsGroupId,
+    );
   }
 
   // ─── Persistence helpers ────────────────────────────────────────────────
@@ -244,6 +257,49 @@ class BookshelfNotifier extends _$BookshelfNotifier {
     final actualFilterGroupId = clearFilter
         ? null
         : (filterGroupId ?? currentState.filterGroupId);
+
+    // ── "Recent Reads" virtual tab ─────────────────────────────────────────
+    // Fixed leftmost tab: shows up to 5 most recently read books, always
+    // ordered by last-opened time (sort settings and manual order do not
+    // apply here).
+    if (actualFilterGroupId == recentReadsGroupId) {
+      final recentBooks = await _repository.getRecentBooks(
+        limit: recentReadsLimit,
+      );
+      final recentItems = recentBooks
+          .map((b) => BookShelfItem(b) as ShelfItem)
+          .toList();
+
+      final updatedCache = Map<int?, List<ShelfBook>>.from(
+        currentState.cachedBooks,
+      );
+      final updatedItemsCache = Map<int?, List<ShelfItem>>.from(
+        currentState.cachedItems,
+      );
+      updatedCache[recentReadsGroupId] = recentBooks;
+      updatedItemsCache[recentReadsGroupId] = recentItems;
+      _touchCacheKey(recentReadsGroupId);
+      _trimCache(updatedCache, updatedItemsCache);
+
+      final allGroups = await _repository.getGroups();
+      return BookshelfState.bookshelfState(
+        books: recentBooks,
+        sortBy: actualSortBy,
+        viewMode: actualViewMode,
+        currentGroupId: null,
+        filterGroupId: recentReadsGroupId,
+        availableGroups: allGroups,
+        selectedBookIds: currentState.selectedBookIds,
+        selectedGroupIds: currentState.selectedGroupIds,
+        isSelectionMode: currentState.isSelectionMode,
+        cachedBooks: updatedCache,
+        series: List.of(_series),
+        items: recentItems,
+        cachedItems: updatedItemsCache,
+        selectedSeriesIds: currentState.selectedSeriesIds,
+        manualOrders: Map.of(_manualOrders),
+      );
+    }
 
     // Get group name for filtering
     String? filterGroupName;

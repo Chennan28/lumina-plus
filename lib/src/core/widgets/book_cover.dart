@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
 import '../providers/cover_file_provider.dart';
 
 /// Book cover widget with Riverpod-based caching and gapless playback.

@@ -5,10 +5,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
-import 'package:lumina/src/features/reader/application/reader_settings_notifier.dart';
-import 'package:lumina/src/features/reader/domain/epub_theme.dart';
-import 'package:lumina/src/features/reader/domain/reader_settings.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
+import 'package:ereader/src/features/reader/application/reader_settings_notifier.dart';
+import 'package:ereader/src/features/reader/domain/epub_theme.dart';
+import 'package:ereader/src/features/reader/domain/reader_settings.dart';
 
 import '../data/book_session.dart';
 import '../data/epub_webview_handler.dart';

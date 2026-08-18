@@ -21,5 +21,9 @@ import UIKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ReaderPageTurnPlugin") {
       ReaderPageTurnPlugin.register(with: registrar)
     }
+
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "SaveImagePlugin") {
+      SaveImagePlugin.register(with: registrar)
+    }
   }
 }

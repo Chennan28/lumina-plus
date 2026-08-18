@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
 import '../application/bookshelf_notifier.dart';
 import '../data/shelf_book_repository.dart';
 import '../domain/shelf_item.dart';
@@ -10,6 +10,7 @@ import 'mixins/library_actions_mixin.dart';
 import 'widgets/book_grid_item.dart';
 import 'widgets/library_app_bar.dart';
 import 'widgets/library_selection_bar.dart';
+import 'widgets/recent_reads_view.dart';
 import 'widgets/reorderable_shelf_grid.dart';
 import 'widgets/series_grid_item.dart';
 import 'widgets/style_bottom_sheet.dart';
@@ -37,7 +38,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen>
 
   void _initializeTabController(BookshelfState state) {
     final tabCount =
-        2 + state.availableGroups.length; // All + Uncategorized + groups
+        3 + state.availableGroups.length; // Recent + All + Uncategorized + groups
 
     if (_tabController == null || _tabController!.length != tabCount) {
       final previousController = _tabController;
@@ -58,12 +59,13 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen>
   }
 
   int _getTabIndexFromState(BookshelfState state) {
-    if (state.filterGroupId == -1) return 1;
-    if (state.filterGroupId == null) return 0;
+    if (state.filterGroupId == BookshelfNotifier.recentReadsGroupId) return 0;
+    if (state.filterGroupId == null) return 1;
+    if (state.filterGroupId == -1) return 2;
     final index = state.availableGroups.indexWhere(
       (g) => g.id == state.filterGroupId,
     );
-    return index == -1 ? 0 : index + 2;
+    return index == -1 ? 1 : index + 3;
   }
 
   void _handleTabChange() {
@@ -76,16 +78,23 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen>
     if (state == null) return;
 
     if (newIndex == 0) {
-      ref.read(bookshelfNotifierProvider.notifier).filterByGroup(null);
+      ref
+          .read(bookshelfNotifierProvider.notifier)
+          .filterByGroup(BookshelfNotifier.recentReadsGroupId);
       return;
     }
 
     if (newIndex == 1) {
+      ref.read(bookshelfNotifierProvider.notifier).filterByGroup(null);
+      return;
+    }
+
+    if (newIndex == 2) {
       ref.read(bookshelfNotifierProvider.notifier).filterByGroup(-1);
       return;
     }
 
-    final newGroupId = state.availableGroups[newIndex - 2].id;
+    final newGroupId = state.availableGroups[newIndex - 3].id;
     if (state.filterGroupId != newGroupId) {
       ref.read(bookshelfNotifierProvider.notifier).filterByGroup(newGroupId);
     }
@@ -320,6 +329,11 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen>
   ) {
     final tabs = <Widget>[];
 
+    // "Recent Reads" tab (fixed, leftmost)
+    tabs.add(
+      _buildTabContent(ref, state, BookshelfNotifier.recentReadsGroupId),
+    );
+
     // "All" tab
     tabs.add(_buildTabContent(ref, state, null));
     tabs.add(_buildTabContent(ref, state, -1));
@@ -337,6 +351,15 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen>
     final itemsForTab = isActiveTab ? state.items : state.cachedItems[groupId];
     if (itemsForTab == null) {
       return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+    }
+
+    // "Recent Reads" virtual tab: single-book carousel view.
+    if (groupId == BookshelfNotifier.recentReadsGroupId) {
+      final recentBooks = itemsForTab
+          .whereType<BookShelfItem>()
+          .map((e) => e.book)
+          .toList();
+      return RecentReadsView(books: recentBooks);
     }
 
     final bottomStatusBarHeight = MediaQuery.of(context).padding.bottom;

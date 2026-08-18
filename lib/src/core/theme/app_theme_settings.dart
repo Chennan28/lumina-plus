@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lumina/src/core/theme/app_theme.dart';
-import 'package:lumina/src/core/theme/color_schemes.dart';
+import 'package:ereader/src/core/theme/app_theme.dart';
+import 'package:ereader/src/core/theme/color_schemes.dart';
 
 /// ============================================================================
 /// HOW TO ADD A NEW THEME VARIANT:
@@ -44,7 +44,7 @@ enum AppThemeVariant {
 ///
 /// Enum declaration order is stable and defines the persisted [index] used by
 /// [ReaderSettings.themeIndex] — never reorder or remove values.
-enum LuminaThemePreset {
+enum EReaderThemePreset {
   // index 0
   standardLight(
     colorSchemeGetter: kLightColorScheme,
@@ -142,7 +142,7 @@ enum LuminaThemePreset {
     overridePrimaryColor: null,
   );
 
-  const LuminaThemePreset({
+  const EReaderThemePreset({
     required ColorScheme colorSchemeGetter,
 
     /// For reader themes only: whether to override the EPUB's default text color
@@ -159,19 +159,19 @@ enum LuminaThemePreset {
   final bool shouldOverrideTextColor;
   final Color? overridePrimaryColor;
 
-  /// Safely resolves a persisted integer back to a [LuminaThemePreset].
+  /// Safely resolves a persisted integer back to a [EReaderThemePreset].
   /// Falls back to [standardLight] for out-of-range values.
-  static LuminaThemePreset fromIndex(int index) {
-    final values = LuminaThemePreset.values;
+  static EReaderThemePreset fromIndex(int index) {
+    final values = EReaderThemePreset.values;
     if (index < 0 || index >= values.length) return standardLight;
     return values[index];
   }
 
-  static List<LuminaThemePreset> get lightPresets => values
+  static List<EReaderThemePreset> get lightPresets => values
       .where((preset) => preset.colorScheme.brightness == Brightness.light)
       .toList();
 
-  static List<LuminaThemePreset> get darkPresets => values
+  static List<EReaderThemePreset> get darkPresets => values
       .where((preset) => preset.colorScheme.brightness == Brightness.dark)
       .toList();
 }
@@ -206,10 +206,10 @@ class AppThemeSettings {
   };
 
   /// The active light preset based on the current variant.
-  LuminaThemePreset get activeLightPreset => _lightPresetFor(themeVariant);
+  EReaderThemePreset get activeLightPreset => _lightPresetFor(themeVariant);
 
   /// The active dark preset based on the current variant.
-  LuminaThemePreset get activeDarkPreset => _darkPresetFor(themeVariant);
+  EReaderThemePreset get activeDarkPreset => _darkPresetFor(themeVariant);
 
   /// The [ColorScheme] used when the app is in light mode.
   ColorScheme get lightColorScheme => activeLightPreset.colorScheme;
@@ -217,15 +217,15 @@ class AppThemeSettings {
   /// The [ColorScheme] used when the app is in dark mode.
   ColorScheme get darkColorScheme => activeDarkPreset.colorScheme;
 
-  /// [ThemeData] built from the chosen light scheme, with [LuminaThemeExtension] injected.
+  /// [ThemeData] built from the chosen light scheme, with [EReaderThemeExtension] injected.
   ThemeData get lightTheme => AppTheme.buildTheme(
     lightColorScheme,
-  ).copyWith(extensions: [LuminaThemeExtension(preset: activeLightPreset)]);
+  ).copyWith(extensions: [EReaderThemeExtension(preset: activeLightPreset)]);
 
-  /// [ThemeData] built from the chosen dark scheme, with [LuminaThemeExtension] injected.
+  /// [ThemeData] built from the chosen dark scheme, with [EReaderThemeExtension] injected.
   ThemeData get darkTheme => AppTheme.buildTheme(
     darkColorScheme,
-  ).copyWith(extensions: [LuminaThemeExtension(preset: activeDarkPreset)]);
+  ).copyWith(extensions: [EReaderThemeExtension(preset: activeDarkPreset)]);
 
   /// Returns the color scheme that is actually active at runtime, given the
   /// current [platformBrightness].
@@ -248,34 +248,34 @@ class AppThemeSettings {
       ? _darkPresetFor(variant).colorScheme
       : _lightPresetFor(variant).colorScheme;
 
-  /// Maps a [AppThemeVariant] to its [LuminaThemePreset].
-  static LuminaThemePreset _lightPresetFor(AppThemeVariant variant) =>
+  /// Maps a [AppThemeVariant] to its [EReaderThemePreset].
+  static EReaderThemePreset _lightPresetFor(AppThemeVariant variant) =>
       switch (variant) {
-        AppThemeVariant.standard => LuminaThemePreset.standardLight,
-        AppThemeVariant.eyeCare => LuminaThemePreset.eyeCareLight,
-        AppThemeVariant.matcha => LuminaThemePreset.matchaLight,
-        AppThemeVariant.midnight => LuminaThemePreset.midnightLight,
-        AppThemeVariant.sakura => LuminaThemePreset.sakuraLight,
-        AppThemeVariant.ocean => LuminaThemePreset.oceanLight,
-        AppThemeVariant.twilight => LuminaThemePreset.twilightLight,
-        AppThemeVariant.coffee => LuminaThemePreset.coffeeLight,
+        AppThemeVariant.standard => EReaderThemePreset.standardLight,
+        AppThemeVariant.eyeCare => EReaderThemePreset.eyeCareLight,
+        AppThemeVariant.matcha => EReaderThemePreset.matchaLight,
+        AppThemeVariant.midnight => EReaderThemePreset.midnightLight,
+        AppThemeVariant.sakura => EReaderThemePreset.sakuraLight,
+        AppThemeVariant.ocean => EReaderThemePreset.oceanLight,
+        AppThemeVariant.twilight => EReaderThemePreset.twilightLight,
+        AppThemeVariant.coffee => EReaderThemePreset.coffeeLight,
       };
 
-  /// Maps a [AppThemeVariant] to its [LuminaThemePreset].
-  static LuminaThemePreset _darkPresetFor(AppThemeVariant variant) =>
+  /// Maps a [AppThemeVariant] to its [EReaderThemePreset].
+  static EReaderThemePreset _darkPresetFor(AppThemeVariant variant) =>
       switch (variant) {
-        AppThemeVariant.standard => LuminaThemePreset.standardDark,
-        AppThemeVariant.eyeCare => LuminaThemePreset.eyeCareDark,
-        AppThemeVariant.matcha => LuminaThemePreset.matchaDark,
-        AppThemeVariant.midnight => LuminaThemePreset.midnightDark,
-        AppThemeVariant.sakura => LuminaThemePreset.sakuraDark,
-        AppThemeVariant.ocean => LuminaThemePreset.oceanDark,
-        AppThemeVariant.twilight => LuminaThemePreset.twilightDark,
-        AppThemeVariant.coffee => LuminaThemePreset.coffeeDark,
+        AppThemeVariant.standard => EReaderThemePreset.standardDark,
+        AppThemeVariant.eyeCare => EReaderThemePreset.eyeCareDark,
+        AppThemeVariant.matcha => EReaderThemePreset.matchaDark,
+        AppThemeVariant.midnight => EReaderThemePreset.midnightDark,
+        AppThemeVariant.sakura => EReaderThemePreset.sakuraDark,
+        AppThemeVariant.ocean => EReaderThemePreset.oceanDark,
+        AppThemeVariant.twilight => EReaderThemePreset.twilightDark,
+        AppThemeVariant.coffee => EReaderThemePreset.coffeeDark,
       };
 
-  /// Maps a [AppThemeVariant] to its [LuminaThemePreset].
-  static LuminaThemePreset presetFor(
+  /// Maps a [AppThemeVariant] to its [EReaderThemePreset].
+  static EReaderThemePreset presetFor(
     AppThemeVariant variant,
     Brightness brightness,
   ) {
@@ -285,20 +285,20 @@ class AppThemeSettings {
   }
 }
 
-/// A [ThemeExtension] that injects the active [LuminaThemePreset] into the
-/// widget tree, making it accessible via [Theme.of(context).extension<LuminaThemeExtension>()].
-class LuminaThemeExtension extends ThemeExtension<LuminaThemeExtension> {
-  const LuminaThemeExtension({required this.preset});
+/// A [ThemeExtension] that injects the active [EReaderThemePreset] into the
+/// widget tree, making it accessible via [Theme.of(context).extension<EReaderThemeExtension>()].
+class EReaderThemeExtension extends ThemeExtension<EReaderThemeExtension> {
+  const EReaderThemeExtension({required this.preset});
 
-  final LuminaThemePreset preset;
+  final EReaderThemePreset preset;
 
   @override
-  LuminaThemeExtension copyWith({LuminaThemePreset? preset}) =>
-      LuminaThemeExtension(preset: preset ?? this.preset);
+  EReaderThemeExtension copyWith({EReaderThemePreset? preset}) =>
+      EReaderThemeExtension(preset: preset ?? this.preset);
 
   /// Enums cannot be meaningfully interpolated, so snap at the midpoint.
   @override
-  LuminaThemeExtension lerp(covariant LuminaThemeExtension? other, double t) {
+  EReaderThemeExtension lerp(covariant EReaderThemeExtension? other, double t) {
     if (other == null) return this;
     return t < 0.5 ? this : other;
   }

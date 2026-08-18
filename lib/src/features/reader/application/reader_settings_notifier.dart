@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:lumina/src/core/providers/shared_preferences_provider.dart';
-import 'package:lumina/src/features/settings/application/imported_font_file_names_provider.dart';
+import 'package:ereader/src/core/providers/shared_preferences_provider.dart';
+import 'package:ereader/src/features/settings/application/imported_font_file_names_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/reader_settings.dart';
 
@@ -10,6 +10,7 @@ part 'reader_settings_notifier.g.dart';
 class ReaderSettingsNotifier extends _$ReaderSettingsNotifier {
   // ── Persistence keys ────────────────────────────────────────────────────────
   static const _kZoom = 'reader_zoom';
+  static const _kLineHeight = 'reader_line_height';
   static const _kFollowApp = 'reader_follow_app';
   static const _kThemeMode = 'reader_theme_mode';
   static const _kMarginTop = 'reader_margin_top';
@@ -47,6 +48,7 @@ class ReaderSettingsNotifier extends _$ReaderSettingsNotifier {
 
     return ReaderSettings().copyWith(
       zoom: prefs.getDouble(_kZoom),
+      lineHeight: prefs.getDouble(_kLineHeight),
       followAppTheme: prefs.getBool(_kFollowApp),
       themeIndex: prefs.getInt(_kThemeMode),
       marginTop: prefs.getDouble(_kMarginTop),
@@ -78,6 +80,11 @@ class ReaderSettingsNotifier extends _$ReaderSettingsNotifier {
   Future<void> setZoom(double zoom) async {
     await _prefs.setDouble(_kZoom, zoom);
     state = state.copyWith(zoom: zoom);
+  }
+
+  Future<void> setLineHeight(double lineHeight) async {
+    await _prefs.setDouble(_kLineHeight, lineHeight);
+    state = state.copyWith(lineHeight: lineHeight);
   }
 
   Future<void> setFollowAppTheme(bool follow) async {

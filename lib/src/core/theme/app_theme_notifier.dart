@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lumina/src/core/providers/shared_preferences_provider.dart';
+import 'package:ereader/src/core/providers/shared_preferences_provider.dart';
 import 'app_theme_settings.dart';
 
 part 'app_theme_notifier.g.dart';
